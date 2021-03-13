@@ -1,6 +1,8 @@
 services:
   node:
-    build: ./node
+    build: 
+      context: ../
+      dockerfile: ./test/node/Dockerfile
     ports:
       - "8080:8080"
     volumes:
@@ -9,7 +11,7 @@ services:
     environment: 
       PORT: "8080"
       MONGO_HOST: "mongo"
-      MONGO_PORT: "8080"
+      MONGO_PORT: "27017"
       MONGO_USERNAME: "root"
       MONGO_PASSWORD: "abc123"
       MONGO_DATABASE: "tournament"

@@ -11,12 +11,16 @@ console.log("Connecting to database");
 
 async function tryConnect() {
     try {
-        await mongo.connect(`mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}`);
+        await mongo.connect(
+            `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}`, {
+            useUnifiedTopology: true
+        });
+        console.log("Connected to database");
+        process.exit(0);
     } catch (ex) {
         console.log("Failed connecting to database. Retrying...");
-        await tryConnect();
+        setTimeout(tryConnect, 1000);
     }
-    console.log("Connected to database");
 }
 
 tryConnect();
