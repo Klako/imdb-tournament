@@ -1,0 +1,24 @@
+services:
+  node:
+    build: ./node
+    ports:
+      - "8080:8080"
+    volumes:
+      - "../src/:/usr/src/app/:ro"
+      - "/usr/src/app/node_modules/"
+    environment: 
+      PORT: "8080"
+      MONGO_HOST: "mongo"
+      MONGO_PORT: "8080"
+      MONGO_USERNAME: "root"
+      MONGO_PASSWORD: "abc123"
+      MONGO_DATABASE: "tournament"
+    links:
+      - mongo
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: abc123

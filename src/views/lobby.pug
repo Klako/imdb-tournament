@@ -1,0 +1,12 @@
+extends layout 
+
+block extrahead 
+  script
+    = "const roomId = '" + roomId + "'"
+  script(src="/javascripts/lobby.js") 
+
+block content 
+  p Room ID:
+    = roomId
+  h3 Movies
+  ul(class="list-group" id="movielist")

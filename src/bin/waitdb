@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+
+var mongo = require('mongodb');
+
+const mongoHost = process.env.MONGO_HOST;
+const mongoPort = process.env.MONGO_PORT;
+const mongoUsername = process.env.MONGO_USERNAME;
+const mongoPassword = process.env.MONGO_PASSWORD;
+
+console.log("Connecting to database");
+
+async function tryConnect() {
+    try {
+        await mongo.connect(`mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}`);
+    } catch (ex) {
+        console.log("Failed connecting to database. Retrying...");
+        await tryConnect();
+    }
+    console.log("Connected to database");
+}
+
+tryConnect();
