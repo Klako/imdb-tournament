@@ -3,10 +3,9 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongodb = require('./models/mongodb.js');
 var session = require('express-session');
-var SqliteStore = require('connect-sqlite3')(session);
 var MongoDbStore = require('connect-mongodb-session')(session);
-var mongodb = require('mongodb');
 
 var mainRouter = require('./routes/router');
 var apiRouter = require('./routes/api');
@@ -23,25 +22,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// database setup
-const mongoUsername = process.env.MONGO_USERNAME;
-const mongoPassword = process.env.MONGO_PASSWORD;
-const mongoHost = process.env.MONGO_HOST;
-const mongoPort = process.env.MONGO_PORT;
-const mongoDatabase = process.env.MONGO_DATABASE;
-app.set('mongo', {
-  uri: `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}`,
-  database: mongoDatabase,
-  connect: () => {
-    return mongodb.connect(this.uri);
-  }
-});
-
 // session
 app.use(session({
   store: new MongoDbStore({
-    uri: app.get('mongo').uri,
-    databaseName: app.get('mongo').database,
+    uri: mongodb.uri,
+    databaseName: mongodb.database,
     collection: 'sessions'
   }),
   secret: 'super secret secret',

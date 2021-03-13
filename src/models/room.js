@@ -1,11 +1,8 @@
 const express = require('express');
-const base64 = require('base-64');
 const { uid } = require('uid');
 const imdb = require('@timvdeijnden/imdb-scraper');
-const a1database = require('a1-database');
+const mongodb = require('./mongodb.js');
 var exports = module.exports;
-
-var db = a1database.connect("rooms.db");
 
 const roomState = {
   LOBBY: "lobby",
@@ -14,9 +11,6 @@ const roomState = {
 };
 
 exports.state = roomState;
-
-/** @type {Room[]} */
-var rooms = [];
 
 /**
  * Creates a new room with user as owner
@@ -29,19 +23,18 @@ exports.createRoom = (settings, user) => {
   do {
     roomId = uid(8);
   } while (rooms[roomId]);
-  rooms[roomId] = new Room(roomId, user, settings);
+  rooms[roomId] = Room.new(roomId, user, settings);
   return roomId;
 }
 
-exports.roomExists = (roomId) => {
-  return Boolean(rooms[roomId]);
+exports.roomExists = async (roomId) => {
+  const db = await mongodb.connect();
+  const rooms = db.collection('rooms');
+  return rooms.indexExists(roomId);
 }
 
 exports.getRoom = (roomId) => {
-  if (!rooms[roomId]) {
-    return new Error("Room does not exist");
-  }
-  return rooms[roomId];
+  return Room.load(roomId);
 }
 
 function verifyMovie(imdbId) {
@@ -68,9 +61,10 @@ class Room {
    * Creates room object from database
    * @param {db} db 
    */
-  static async load(db, roomId) {
-    const roomDatas = await db.find((room) => room.id == roomId);
-    roomData = roomDatas.shift();
+  static async load(roomId) {
+    const db = await mongodb.connect();
+    var rooms = db.collection('rooms');
+    const roomData = await rooms.findOne({ id: roomId })
     var room = new Room();
     Object.assign(room, roomData);
     return room;
@@ -80,8 +74,14 @@ class Room {
    * Saves room object to database
    * @param {db} db 
    */
-  async save(db) {
-    await db.upsert(this);
+  async save() {
+    const db = await mongodb.connect();
+    var rooms = db.collection('rooms');
+    if (await rooms.indexExists(this.id)) {
+      await rooms.replaceOne({ id: this.id }, this);
+    } else {
+      await rooms.insertOne(this);
+    }
   }
 
   /**
