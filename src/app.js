@@ -6,7 +6,6 @@ var logger = require('morgan');
 var mongodb = require('./models/mongodb.js');
 var session = require('express-session');
 var MongoDbStore = require('connect-mongodb-session')(session);
-var profile = require('./middleware/profile.js');
 
 var mainRouter = require('./routes/router');
 var apiRouter = require('./routes/api');
