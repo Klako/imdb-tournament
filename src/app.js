@@ -6,6 +6,7 @@ var logger = require('morgan');
 var mongodb = require('./models/mongodb.js');
 var session = require('express-session');
 var MongoDbStore = require('connect-mongodb-session')(session);
+var profile = require('./middleware/profile.js');
 
 var mainRouter = require('./routes/router');
 var apiRouter = require('./routes/api');
@@ -32,6 +33,11 @@ app.use(session({
   secret: 'super secret secret',
   cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
+
+app.use(async (req, res, next) => {
+  req.profile = await profiles.getProfile(req.sessionId);
+  next();
+});
 
 app.use('/', mainRouter);
 app.use('/api', apiRouter);
