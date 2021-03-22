@@ -1,4 +1,5 @@
 const express = require('express');
+const errors = require('http-errors');
 const { uid } = require('uid');
 const imdb = require('@timvdeijnden/imdb-scraper');
 const mongodb = require('./mongodb.js');
@@ -16,32 +17,37 @@ exports.state = roomState;
  * Creates a new room with user as owner
  * @param {object} settings 
  * @param {string} user
- * @return {string | ValidationError[]}
+ * @return {Promise<string>}
  */
-exports.createRoom = (settings, user) => {
+exports.createRoom = async (settings, user) => {
   var roomId = null;
   do {
     roomId = uid(8);
-  } while (rooms[roomId]);
-  rooms[roomId] = Room.new(roomId, user, settings);
+  } while (await this.roomExists(roomId));
+  var room = Room.new(roomId, user, settings);
+  room.save();
   return roomId;
 }
 
 exports.roomExists = async (roomId) => {
   const db = await mongodb.connect();
   const rooms = db.collection('rooms');
-  return rooms.indexExists(roomId);
+  return Boolean(await rooms.count({ id: roomId }));
 }
 
-exports.getRoom = (roomId) => {
-  return Room.load(roomId);
+exports.getRoom = async (roomId) => {
+  return await Room.load(roomId);
 }
 
-function verifyMovie(imdbId) {
-  var scrapper = imdb.scrapper(imdbId);
-  return scrapper.then(() => true, () => false);
+async function verifyMovie(imdbId) {
+  var movie = await imdb.scrapper(imdbId);
+  return Boolean(movie);
 }
 
+/**
+ * Room object with all room info
+ * @property {string} id
+ */
 class Room {
   static new(roomId, owner, settings) {
     var room = new Room();
@@ -77,7 +83,7 @@ class Room {
   async save() {
     const db = await mongodb.connect();
     var rooms = db.collection('rooms');
-    if (await rooms.indexExists(this.id)) {
+    if (await rooms.count({ id: this.id })) {
       await rooms.replaceOne({ id: this.id }, this);
     } else {
       await rooms.insertOne(this);
@@ -90,7 +96,7 @@ class Room {
    */
   addUser(userId) {
     if (this.users.find(user => user == userId)) {
-      return new Error("User is already in room");
+      return new errors[400]("User is already in room");
     }
     this.users.push(userId);
   }
@@ -101,7 +107,7 @@ class Room {
    */
   removeUser(userId) {
     if (!this.users.find(user => user == userId)) {
-      return new Error("User is not in room");
+      return new errors[400]("User is not in room");
     }
     this.users = this.users.filter(user => user != userId);
     this.movies = this.movies.filter(movie => movie.owner != userId);
@@ -120,24 +126,25 @@ class Room {
    * @param {string} imdbId 
    * @param {string} owner
    */
-  addMovie(imdbId, owner) {
+  async addMovie(imdbId, owner) {
     var userOwnerCount = this.movies.filter(movie => movie.owner == owner).length;
     if (userOwnerCount >= this.settings.maxperuser) {
-      return new Error("User has too many movies");
+      throw new errors[400]("Too many movies");
     }
-    return verifyMovie(imdbId).then((exists) => {
-      if (exists) {
-        this.movies.push({
-          id: imdbId,
-          owner: owner
-        });
-      } else {
-        return new Error("Movie does not exist");
-      }
-    });
+    if (this.movies.find((movie) => movie.id == imdbId)) {
+      throw new errors[400]("Movie already in room");
+    }
+    if (await verifyMovie(imdbId)) {
+      this.movies.push({
+        id: imdbId,
+        owner: owner
+      });
+    } else {
+      throw new errors[400]("Invalid movie");
+    }
   }
 
-  removeMovie(imdbId) {
+  async removeMovie(imdbId) {
     if (this.state == roomState.LOBBY) {
       this.movies = this.movies.filter(movie => movie.id != imdbId);
     }
