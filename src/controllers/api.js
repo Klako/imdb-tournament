@@ -1,5 +1,4 @@
 const express = require('express');
-const { NotFound } = require('http-errors');
 const rooms = require('../models/room.js');
 var exports = module.exports;
 
@@ -14,10 +13,17 @@ function handler(req, res, handlers) {
     handlers[req.method](req, res);
   } else {
     res.status(405);
-    res.json({
-      error: "bad_method"
-    })
+    res.json({ error: "Bad Method" });
   }
+}
+
+/**
+ * 
+ * @param {Response} res 
+ * @param {import('http-errors').HttpError} reason 
+ */
+function doError(res, reason) {
+  res.status(reason.statusCode).json({ error: reason.message });
 }
 
 exports.profile = function (req, res) {
@@ -34,8 +40,7 @@ exports.profile = function (req, res) {
       } else {
         result.name = false;
       }
-      res.status(200);
-      res.send(result);
+      res.json(result);
     }
   })
 }
@@ -51,9 +56,11 @@ function initializeProfile(req) {
 exports.rooms = (req, res) => {
   handler(req, res, {
     POST: (req, res) => {
-      var settings = req.body;
-      var roomId = rooms.createRoom(settings, req.session.id);
-      res.json({ url: "/room/" + roomId });
+      rooms.createRoom(req.body, req.session.id).then((roomId) => {
+        res.json({ url: "/room/" + roomId });
+      }).catch((reason) => {
+        doError(res, reason);
+      })
     }
   })
 }
@@ -62,7 +69,7 @@ exports.room = (req, res) => {
   handler(req, res, {
     GET: (req, res) => {
       var roomId = req.params.id;
-      if (rooms.roomExists(roomId)){
+      if (rooms.roomExists(roomId)) {
 
       }
     }
@@ -73,21 +80,30 @@ exports.movies = (req, res) => {
   handler(req, res, {
     GET: (req, res) => {
       var roomId = req.params.id;
-      if (!rooms.roomExists(roomId)){
-        res.status(404).json({error: "Room does not exist"});
-        return;
-      }
-      var room = rooms.getRoom(roomId);
-      res.json(room.movies);
+      rooms.getRoom(roomId).then((room) => {
+        res.json(room.movies.map((movie) => ({
+          id: movie.id,
+          
+        })));
+      }).catch((reason) => {
+        doError(res, reason);
+      });
     },
     POST: (req, res) => {
       var roomId = req.params.id;
-      if (!rooms.roomExists(roomId)){
-        res.status(404).json({error: "Room does not exist"});
-        return;
-      }
-      var room = rooms.getRoom(roomId);
-      room.addMovie(req.body.mid, req.session.id);
+      rooms.getRoom(roomId).then((room) => {
+        room.addMovie(req.body.id, req.session.id).then(() => {
+          room.save().then(() => {
+            res.end();
+          }).catch((reason) => {
+            doError(res, reason);
+          });
+        }).catch((reason) => {
+          doError(res, reason);
+        });
+      }).catch((reason) => {
+        doError(res, reason);
+      });
     }
   })
 }
@@ -95,7 +111,18 @@ exports.movies = (req, res) => {
 exports.movie = (req, res) => {
   handler(req, res, {
     DELETE: (req, res) => {
-
+      var roomId = req.params.rid;
+      var movieId = req.params.mid;
+      rooms.getRoom(roomId).then((room) => {
+        room.removeMovie(movieId);
+        room.save().then(() => {
+          res.end();
+        }).catch((reason) => {
+          doError(res, reason);
+        })
+      }).catch((reason) => {
+        doError(res, reason);
+      });
     }
   })
 }
