@@ -55,9 +55,9 @@ $(function () {
       method: "POST",
       url: "/api/rooms",
       data: {
-        minperuser: $("#create-room-minmovies").val(),
-        maxperuser: $("#create-room-maxmovies").val(),
-        candropinvote: $("#create-form-dropinvote").val()
+        minperuser: parseInt($("#create-room-minmovies").val()),
+        maxperuser: parseInt($("#create-room-maxmovies").val()),
+        candropinvote: $("#create-form-dropinvote").is(':checked')
       }
     }).done((data) => {
       window.location = data.url
