@@ -6,6 +6,4 @@ COPY src .
 
 RUN npm install -g nodemon
 
-RUN npm install
-
-CMD npm run waitdb && nodemon bin/www --legacy-watch
+CMD npm run waitdb && nodemon --legacy-watch --inspect=0.0.0.0:9229 bin/www

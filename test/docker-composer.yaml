@@ -5,9 +5,9 @@ services:
       dockerfile: ./test/node/Dockerfile
     ports:
       - "8080:8080"
+      - "8081:9229"
     volumes:
       - "../src/:/usr/src/app/:ro"
-      - "/usr/src/app/node_modules/"
     environment: 
       PORT: "8080"
       MONGO_HOST: "mongo"
