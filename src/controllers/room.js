@@ -8,11 +8,12 @@ exports.get = function (req, res) {
   if (!rooms.roomExists(roomId)) {
     throw new NotFound;
   }
-  var room = rooms.getRoom(roomId);
-  if (!room.hasUser(req.session.id)) {
-    room.addUser(req.session.id);
-  }
-  if (room.state == rooms.state.LOBBY) {
-    res.render("lobby", { roomId: roomId });
-  }
+  rooms.getRoom(roomId).then((room) => {
+    if (!room.hasUser(req.session.id)) {
+      room.addUser(req.session.id);
+    }
+    if (room.state == rooms.state.LOBBY) {
+      res.render("lobby", { room: room });
+    }
+  });
 }

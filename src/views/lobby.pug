@@ -2,11 +2,16 @@ extends layout
 
 block extrahead 
   script
-    = "const roomId = '" + roomId + "'"
+    = "const roomId = '" + room.id + "'"
   script(src="/javascripts/lobby.js") 
 
 block content 
   p Room ID:
-    = roomId
+    = room.id
+  div(class="row mb-3")
+    div(class="input-group col-3")
+      input(type="text" id="addmovie-id" class="form-control")
+      div(class="input-group-append")
+        button(type="button" class="btn btn-outline-secondary" id="addmovie-button") Add movie
   h3 Movies
-  ul(class="list-group" id="movielist")
+  ul(class="list-group col-3" id="movielist")
