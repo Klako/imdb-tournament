@@ -20,23 +20,25 @@ const loadMovies = function () {
     var actualMovies = data.map((movie) => movie.id);
     var removals = currentMovies.filter((movie) => !actualMovies.includes(movie.id));
     var additions = actualMovies.filter((id) => !currentMovies.some((movie) => movie.id == id));
-    for (var removal of removals){
+    for (var removal of removals) {
       removal.elem.remove();
     }
-    for (var addition of additions){
+    for (var addition of additions) {
       var item = `<li class="list-group-item">
         <span>${addition}</span>
         <button type="button" class="btn btn-danger float-right" id=${"removemovie-" + addition}>Remove</button>
       </li>`
       movielist.append(item);
-      $("#removemovie-" + addition).on("click", removeMovie.bind({movieId: addition}));
+      $("#removemovie-" + addition).on("click", removeMovie.bind({ movieId: addition }));
     }
   });
 }
 
-const updateUi = function () {
-  loadMovies();
-  setTimeout(updateUi, 1000)
+const updateUi = async function () {
+  while (true) {
+    loadMovies();
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
 }
 
 $(updateUi)
