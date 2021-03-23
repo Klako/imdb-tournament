@@ -1,30 +1,28 @@
 $(function () {
+  var profileName = $("#profile-name");
+  var profileNameStatus = $("#profile-name + img");
   $.ajax({
     method: "GET",
     url: "/api/profile"
   }).done((profile) => {
-    $("#profile-name")
+    profileName
       .val(profile.name)
       .on("input", (event) => {
-        if ($("#profile-name + img").length == 0) {
-          $("#profile-name").parent().append("<img src='/images/asterisk.png' />");
-        } else {
-          $("#profile-name + img").attr("src", "/images/asterisk.png");
-        }
+        profileNameStatus.attr("src", "/images/asterisk.png");
       })
       .on("change", (event) => {
         $.ajax({
           method: "PATCH",
           url: "/api/profile",
-          data: { name: $("#profile-name").val() }
+          data: { name: profileName.val() }
         }).done((data) => {
           if (data.name) {
-            $("#profile-name + img").attr("src", "/images/check.png");
+            profileNameStatus.attr("src", "/images/check.png");
           } else {
-            $("#profile-name + img").attr("src", "/images/cross.png");
+            profileNameStatus.attr("src", "/images/cross.png");
           }
         }).fail((data) => {
-          $("#profile-name + img").attr("src", "/images/cross.png");
+          profileNameStatus.attr("src", "/images/cross.png");
         })
       });
   });
