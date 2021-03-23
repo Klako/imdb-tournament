@@ -1,5 +1,6 @@
 const mongodb = require('./mongodb.js');
 const errors = require('http-errors');
+const { ObjectId } = require('bson');
 
 exports = module.exports;
 
@@ -22,6 +23,9 @@ class Profile {
     };
     var profiles = await collection();
     var result = await profiles.insertOne(newProfile);
+    await profiles.updateOne({ _id: result.insertedId }, {
+      $set: { id: result.insertedId.toString() }
+    });
     return await this.load(result.insertedId);
   }
 
@@ -34,17 +38,16 @@ class Profile {
    */
   static async load(id) {
     var profiles = await collection();
-    var profileData = await profiles.findOne({ _id: id })
+    var profileData = await profiles.findOne({ _id: new ObjectId(id) });
     var profile = new Profile();
     Object.assign(profile, profileData);
-    profile.id = profile._id.toString();
     return profile;
   }
 
   async setName(newName) {
     var profiles = await collection();
-    profiles.updateOne({_id: this.id}, {
-      $set: {name:newName}
+    profiles.updateOne({ _id: this._id }, {
+      $set: { name: newName }
     });
     this.name = newName;
   }
