@@ -63,8 +63,8 @@ exports.profile = function (req, res) {
 exports.rooms = (req, res) => {
   handler(req, res, {
     POST: async (req, res) => {
-      var roomId = await rooms.createRoom(req.body, req.profile.id);
-      res.json({ url: "/room/" + roomId });
+      var room = await rooms.createRoom(req.body, req.profile.id);
+      res.json({ url: "/room/" + room.id });
     }
   })
 }
@@ -100,7 +100,6 @@ exports.movies = (req, res) => {
       var roomId = req.params.id;
       var room = await rooms.getRoom(roomId);
       await room.addMovie(req.body.id, req.profile.id);
-      await room.save();
       res.end();
     }
   })
@@ -111,16 +110,9 @@ exports.movie = (req, res) => {
     DELETE: async (req, res) => {
       var roomId = req.params.rid;
       var movieId = req.params.mid;
-      rooms.getRoom(roomId).then((room) => {
-        room.removeMovie(movieId);
-        room.save().then(() => {
-          res.end();
-        }).catch((reason) => {
-          doError(res, reason);
-        })
-      }).catch((reason) => {
-        doError(res, reason);
-      });
+      var room = await rooms.getRoom(roomId);
+      await room.removeMovie(movieId);
+      res.end();
     }
   })
 }

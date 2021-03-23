@@ -9,11 +9,15 @@ exports.get = function (req, res) {
     throw new NotFound;
   }
   rooms.getRoom(roomId).then((room) => {
-    if (!room.hasUser(req.session.id)) {
-      room.addUser(req.session.id);
+    if (!room.hasUser(req.profile.id)) {
+      room.addUser(req.profile.id);
     }
     if (room.state == rooms.state.LOBBY) {
       res.render("lobby", { room: room });
+    } else if (room.state == rooms.state.TOURNAMENT) {
+      res.render("tournament", {room: room});
+    } else if (room.state == rooms.state.WINNER) {
+
     }
   });
 }
