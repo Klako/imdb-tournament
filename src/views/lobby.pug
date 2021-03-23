@@ -8,6 +8,8 @@ block extrahead
 block content 
   p Room ID:
     = room.id
+  if profile.id == room.owner
+    button(type="button" class="btn btn-primary mb-3" id="starttournament") Start Tournament
   div(class="row mb-3")
     div(class="input-group col-3")
       input(type="text" id="addmovie-id" class="form-control")

@@ -73,13 +73,26 @@ exports.room = (req, res) => {
   handler(req, res, {
     GET: async (req, res) => {
       var roomId = req.params.id;
-      if (rooms.roomExists(roomId)) {
-        res.json({
-
-        })
-      } else {
-        throw new errors[404]("Room does not exist");
+      var room = await rooms.getRoom(roomId);
+      res.json({
+        id: room.id,
+        state: room.state
+      });
+    },
+    PATCH: async (req,res) => {
+      var roomId = req.params.id;
+      var room = await rooms.getRoom(roomId);
+      if (req.profile.id != room.owner){
+        throw new errors[401]("Only owner can edit room");
       }
+      var result = {};
+      if (req.body.state){
+        await room.setState(String(req.body.state));
+        result.state = true;
+      } else {
+        req.body.state = false;
+      }
+      res.json(result);
     }
   })
 }
@@ -91,7 +104,9 @@ exports.movies = (req, res) => {
       var room = await rooms.getRoom(roomId);
       var result = await Promise.all(room.movies.map(async (movie) => ({
         id: movie.id,
-        owner: (await profiles.get(movie.owner)).name
+        owner: (await profiles.get(movie.owner)).name,
+        title: movie.data.title,
+        image: movie.data.poster
       })));
       await res.json(result);
       res.end();

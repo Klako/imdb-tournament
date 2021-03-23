@@ -13,9 +13,9 @@ exports.get = function (req, res) {
       room.addUser(req.profile.id);
     }
     if (room.state == rooms.state.LOBBY) {
-      res.render("lobby", { room: room });
+      res.render("lobby", { room: room, profile: req.profile });
     } else if (room.state == rooms.state.TOURNAMENT) {
-      res.render("tournament", {room: room});
+      res.render("tournament", { room: room, profile: req.profile });
     } else if (room.state == rooms.state.WINNER) {
 
     }

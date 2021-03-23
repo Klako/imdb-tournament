@@ -14,22 +14,22 @@ const loadMovies = function () {
     url: "/api/rooms/" + roomId + "/movies"
   }).done((data) => {
     var currentMovies = movielist.children().toArray().map((elem) => ({
-      id: $(elem).children('span').text(),
+      id: $(elem).data("id"),
       elem: $(elem)
     }));
     var actualMovies = data.map((movie) => movie.id);
     var removals = currentMovies.filter((movie) => !actualMovies.includes(movie.id));
-    var additions = actualMovies.filter((id) => !currentMovies.some((movie) => movie.id == id));
+    var additions = data.filter((movie) => !currentMovies.some((currentMovie)=>currentMovie.id == movie.id));
     for (var removal of removals) {
       removal.elem.remove();
     }
     for (var addition of additions) {
-      var item = `<li class="list-group-item">
-        <span>${addition}</span>
-        <button type="button" class="btn btn-danger float-right" id=${"removemovie-" + addition}>Remove</button>
+      var item = `<li class="list-group-item" data-id="${addition.id}">
+        <span>${addition.title}</span>
+        <button type="button" class="btn btn-danger float-right" id=${"removemovie-" + addition.id}>Remove</button>
       </li>`
       movielist.append(item);
-      $("#removemovie-" + addition).on("click", removeMovie.bind({ movieId: addition }));
+      $("#removemovie-" + addition.id).on("click", removeMovie.bind({ movieId: addition.id }));
     }
   });
 }
@@ -59,4 +59,23 @@ $(function () {
       console.log("bad movie >:(");
     });
   });
+});
+
+$(function (){
+  var startButton = $("#starttournament");
+  if (startButton.length != 0){
+    startButton.on('click', () =>{
+      $.ajax({
+        method: "PATCH",
+        url: "/api/rooms/" + roomId,
+        data: {
+          state: "tournament"
+        }
+      }).done(()=>{
+        window.location.reload();
+      }).fail((error) => {
+        console.log(error);
+      })
+    })
+  }
 });
