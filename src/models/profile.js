@@ -37,7 +37,7 @@ class Profile {
     var profileData = await profiles.findOne({ _id: id })
     var profile = new Profile();
     Object.assign(profile, profileData);
-    profile.id = profile._id;
+    profile.id = profile._id.toString();
     return profile;
   }
 
