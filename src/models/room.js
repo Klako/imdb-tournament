@@ -38,6 +38,14 @@ exports.getRoom = async (roomId) => {
   return await Room.load(roomId);
 }
 
+async function getMovieData(imdbId) {
+  var movie = await imdb.scrapper(imdbId);
+  if (!movie) {
+    throw new errors[400]("Invalid movie");
+  }
+  return movie;
+}
+
 async function verifyMovie(imdbId) {
   var movie = await imdb.scrapper(imdbId);
   return Boolean(movie);
@@ -88,7 +96,7 @@ class Room {
    */
   async addUser(userId) {
     if (this.users.find(user => user == userId)) {
-      return new errors[400]("User is already in room");
+      throw new errors[400]("User is already in room");
     }
     this.users.push(userId);
   }
@@ -129,22 +137,16 @@ class Room {
     if (this.movies.find((movie) => movie.id == imdbId)) {
       throw new errors[400]("Movie already in room");
     }
-    if (await verifyMovie(imdbId)) {
-      var newMovie = {
-        id: imdbId,
-        owner: owner
-      };
-      this.movies.push(newMovie);
-      await (await collection()).updateOne({ id: this.id }, {
-        $push: { movies: newMovie }
-      });
-      this.movies.push({
-        id: imdbId,
-        owner: owner
-      });
-    } else {
-      throw new errors[400]("Invalid movie");
+    var movie = await getMovieData(imdbId);
+    var newMovie = {
+      id: imdbId,
+      owner: owner,
+      data: movie
     }
+    this.movies.push(newMovie);
+    await (await collection()).updateOne({ id: this.id }, {
+      $push: { movies: newMovie }
+    });
   }
 
   async removeMovie(imdbId) {
@@ -157,6 +159,17 @@ class Room {
     });
     if (this.state == roomState.LOBBY) {
       this.movies = this.movies.filter(movie => movie.id != imdbId);
+    }
+  }
+
+  async setState(state) {
+    if (Object.values(roomState).some((validState) => validState == state)) {
+      this.state = state;
+      await (await collection()).updateOne({ id: this.id }, {
+        $set: { state: state }
+      });
+    } else {
+      throw new errors[400]("New state is invalid");
     }
   }
 }
