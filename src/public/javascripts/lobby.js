@@ -1,7 +1,7 @@
-const removeMovie = function (movieId) {
+const removeMovie = function () {
   $.ajax({
     method: "DELETE",
-    url: "/api/rooms/" + roomId + "/movies/" + movieId
+    url: "/api/rooms/" + roomId + "/movies/" + this.movieId
   }).done(() => {
     loadMovies();
   })
@@ -13,14 +13,23 @@ const loadMovies = function () {
     method: "GET",
     url: "/api/rooms/" + roomId + "/movies"
   }).done((data) => {
-    movielist.children().remove();
-    for (var movie of data) {
+    var currentMovies = movielist.children().toArray().map((elem) => ({
+      id: $(elem).children('span').text(),
+      elem: $(elem)
+    }));
+    var actualMovies = data.map((movie) => movie.id);
+    var removals = currentMovies.filter((movie) => !actualMovies.includes(movie.id));
+    var additions = actualMovies.filter((id) => !currentMovies.some((movie) => movie.id == id));
+    for (var removal of removals){
+      removal.elem.remove();
+    }
+    for (var addition of additions){
       var item = `<li class="list-group-item">
-        <span>${movie.id}</span>
-        <button type="button" class="btn btn-danger float-right" id=${"removemovie-" + movie.id}>Remove</button>
+        <span>${addition}</span>
+        <button type="button" class="btn btn-danger float-right" id=${"removemovie-" + addition}>Remove</button>
       </li>`
       movielist.append(item);
-      $("#removemovie-" + movie.id).on("click", () => removeMovie(movie.id));
+      $("#removemovie-" + addition).on("click", removeMovie.bind({movieId: addition}));
     }
   });
 }
