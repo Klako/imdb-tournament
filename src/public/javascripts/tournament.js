@@ -1,5 +1,5 @@
 $(function (){
-  var startButton = $("#starttournament");
+  var startButton = $("#backtolobby");
   if (startButton.length != 0){
     startButton.on('click', () =>{
       $.ajax({
