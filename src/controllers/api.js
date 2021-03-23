@@ -1,6 +1,7 @@
 const express = require('express');
 const rooms = require('../models/room.js');
 const profiles = require('../models/profile.js');
+const errors = require('http-errors');
 var exports = module.exports;
 
 /**
@@ -20,7 +21,11 @@ function handler(req, res, handlers) {
   if (handlers[req.method]) {
     handlers[req.method](req, res).catch((reason) => {
       console.log(reason.toString());
-      res.status(reason.statusCode).json({ error: reason.message });
+      if (reason.statusCode){
+        res.status(reason.statusCode).json({ error: reason.message });
+      } else {
+        res.status(500).end();
+      }
     });
   } else {
     res.status(405);
@@ -45,12 +50,11 @@ exports.profile = function (req, res) {
     PATCH: async (req, res) => {
       var result = {};
       if (req.body.name) {
-        req.profile.setName(String(req.body.name));
+        await req.profile.setName(String(req.body.name));
         result.name = true;
       } else {
         result.name = false;
       }
-      await req.profile.save();
       res.json(result);
     }
   })
@@ -59,7 +63,7 @@ exports.profile = function (req, res) {
 exports.rooms = (req, res) => {
   handler(req, res, {
     POST: async (req, res) => {
-      var roomId = await rooms.createRoom(req.body, req.session.id);
+      var roomId = await rooms.createRoom(req.body, req.profile.id);
       res.json({ url: "/room/" + roomId });
     }
   })
@@ -70,7 +74,11 @@ exports.room = (req, res) => {
     GET: async (req, res) => {
       var roomId = req.params.id;
       if (rooms.roomExists(roomId)) {
+        res.json({
 
+        })
+      } else {
+        throw new errors[404]("Room does not exist");
       }
     }
   })
@@ -83,7 +91,7 @@ exports.movies = (req, res) => {
       var room = await rooms.getRoom(roomId);
       var result = await Promise.all(room.movies.map(async (movie) => ({
         id: movie.id,
-        owner: (await profiles.getProfile(movie.owner)).name
+        owner: (await profiles.get(movie.owner)).name
       })));
       await res.json(result);
       res.end();
@@ -91,7 +99,7 @@ exports.movies = (req, res) => {
     POST: async (req, res) => {
       var roomId = req.params.id;
       var room = await rooms.getRoom(roomId);
-      await room.addMovie(req.body.id, req.session.id);
+      await room.addMovie(req.body.id, req.profile.id);
       await room.save();
       res.end();
     }
@@ -121,6 +129,15 @@ exports.roomUsers = (req, res) => {
   handler(req, res, {
     GET: async (req, res) => {
       var roomId = req.params.id;
+      var room = await rooms.getRoom(roomId);
+      res.json()
+    }
+  })
+}
+
+exports.roomUser = (req, res) => {
+  handler(req, res, {
+    DELETE: async (req, res) => {
 
     }
   })

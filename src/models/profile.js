@@ -3,23 +3,26 @@ const errors = require('http-errors');
 
 exports = module.exports;
 
-exports.getProfile = async (sessionId) => {
-  var db = await mongodb.connect();
-  var profiles = db.collection('profiles');
-  if (!profiles.findOne({ sessionId: sessionId })) {
-    var profile = Profile.new(sessionId);
-    profile.save();
-    return profile;
-  } 
-  return await Profile.load(sessionId);
+exports.create = async () => {
+  return await Profile.new();
+}
+
+exports.get = async (id) => {
+  return await Profile.load(id);
+}
+
+async function collection() {
+  return (await mongodb.connect()).collection('profiles');
 }
 
 class Profile {
-  static new(sessionId) {
-    var profile = new Profile();
-    profile.sessionId = sessionId;
-    profile.name = "Jeff";
-    return profile;
+  static async new() {
+    var newProfile = {
+      name: "Jeff"
+    };
+    var profiles = await collection();
+    var result = await profiles.insertOne(newProfile);
+    return await this.load(result.insertedId);
   }
 
   constructor() {
@@ -27,31 +30,22 @@ class Profile {
 
   /**
    * Creates profile object from database
-   * @param {string} sessionId 
+   * @param {string} id
    */
-  static async load(sessionId) {
-    const db = await mongodb.connect();
-    var profiles = db.collection('profiles');
-    const profileData = await profiles.findOne({ sessionId: sessionId })
+  static async load(id) {
+    var profiles = await collection();
+    var profileData = await profiles.findOne({ _id: id })
     var profile = new Profile();
     Object.assign(profile, profileData);
+    profile.id = profile._id;
     return profile;
   }
 
-  /**
-   * Saves profile object to database
-   */
-  async save() {
-    const db = await mongodb.connect();
-    var profiles = db.collection('profiles');
-    if (await profiles.count({ sessionId: this.sessionId })) {
-      await profiles.replaceOne({ sessionId: this.sessionId }, this);
-    } else {
-      await profiles.insertOne(this);
-    }
-  }
-
-  setName(newName){
+  async setName(newName) {
+    var profiles = await collection();
+    profiles.updateOne({_id: this.id}, {
+      $set: {name:newName}
+    });
     this.name = newName;
   }
 }
