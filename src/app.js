@@ -35,7 +35,7 @@ app.use(session({
 }));
 
 app.use(async (req, res, next) => {
-  req.profile = await profiles.getProfile(req.sessionId);
+  req.profile = await profiles.getProfile(req.session.id);
   next();
 });
 
