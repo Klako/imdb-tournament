@@ -46,11 +46,6 @@ async function getMovieData(imdbId) {
   return movie;
 }
 
-async function verifyMovie(imdbId) {
-  var movie = await imdb.scrapper(imdbId);
-  return Boolean(movie);
-}
-
 async function collection() {
   return (await mongodb.connect()).collection('rooms');
 }
