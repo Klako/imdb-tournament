@@ -278,7 +278,7 @@ class Room {
     }
   }
 
-  checkWinners() {
+  checkBracketWinners() {
     var activeBracket = this.tournament.activeBracket;
     var points = activeBracket.movies.map((movie) => ({
       id: movie.id,
