@@ -200,11 +200,11 @@ class Room {
       }));
     var brackets = [];
     var bracketStart = 0;
-    for (var bracketEnd = 0; bracketEnd < bracketMovies.length; bracketEnd++) {
-      if (bracketEnd >= bracketStart + 4 || bracketEnd == bracketMovies.length - 1) {
-        if (bracketEnd != bracketMovies.length - 2) {
+    for (var bracketEnd = 1; bracketEnd <= bracketMovies.length; bracketEnd++) {
+      if (bracketEnd >= bracketStart + 4 || bracketEnd == bracketMovies.length) {
+        if (bracketEnd != bracketMovies.length - 1) {
           brackets.push(bracketMovies.slice(bracketStart, bracketEnd));
-          bracketStart = bracketEnd + 1;
+          bracketStart = bracketEnd;
         }
       }
     }
@@ -242,7 +242,7 @@ class Room {
     }
     this.tournament.activeBracket.pairings = pairings;
     await rooms.updateOne({ id: this.id }, {
-      $set: { "tournament.activeBracket": pairings }
+      $set: { "tournament.activeBracket.pairings": pairings }
     });
   }
 
