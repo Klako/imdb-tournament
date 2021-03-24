@@ -21,7 +21,7 @@ function handler(req, res, handlers) {
   if (handlers[req.method]) {
     handlers[req.method](req, res).catch((reason) => {
       console.log(reason.toString());
-      if (reason.statusCode){
+      if (reason.statusCode) {
         res.status(reason.statusCode).json({ error: reason.message });
       } else {
         res.status(500).end();
@@ -79,14 +79,14 @@ exports.room = (req, res) => {
         state: room.state
       });
     },
-    PATCH: async (req,res) => {
+    PATCH: async (req, res) => {
       var roomId = req.params.id;
       var room = await rooms.getRoom(roomId);
-      if (req.profile.id != room.owner){
+      if (req.profile.id != room.owner) {
         throw new errors[401]("Only owner can edit room");
       }
       var result = {};
-      if (req.body.state){
+      if (req.body.state) {
         await room.setState(String(req.body.state));
         result.state = true;
       } else {
@@ -148,11 +148,43 @@ exports.roomUser = (req, res) => {
       var roomId = req.params.rid;
       var userId = req.params.uid;
       var room = await rooms.getRoom(roomId);
-      if (req.profile.id != room.owner){
+      if (req.profile.id != room.owner) {
         throw new errors[401]("Only host can kick users");
       }
       await room.removeUser(userId);
       res.end();
+    }
+  })
+}
+
+exports.bracket = (req, res) => {
+  handler(req, res, {
+    GET: async (req, res) => {
+      var roomId = req.params.rid;
+      var room = await rooms.getRoom(roomId);
+      if (room.state != rooms.state.TOURNAMENT){
+        throw new errors[403]("Must be in tournament mode to request bracket");
+      }
+      var bracket = room.tournament.activeBracket;
+      res.json({
+        movies: bracket.movies.map((movie) => ({
+          id: movie.id,
+          title: movie.data.title,
+          image: movie.data.poster
+        })),
+        pairings: bracket.pairings.map((pairing) => ({
+          movie1: {
+            id: pairing.movie1.id,
+            title: pairing.movie1.data.title,
+            image: pairing.movie1.data.poster
+          },
+          movie2: {
+            id: pairing.movie2.id,
+            title: pairing.movie2.data.title,
+            image: pairing.movie2.data.poster
+          }
+        }))
+      });
     }
   })
 }
