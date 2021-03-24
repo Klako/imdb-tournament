@@ -107,7 +107,7 @@ class Room {
    */
   async removeUser(userId) {
     if (!this.users.find(user => user == userId)) {
-      return new errors[400]("User is not in room");
+      throw new errors[400]("User is not in room");
     }
     this.users = this.users.filter(user => user != userId);
     this.movies = this.movies.filter(movie => movie.owner != userId);
