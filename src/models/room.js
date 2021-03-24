@@ -163,6 +163,9 @@ class Room {
       await (await collection()).updateOne({ id: this.id }, {
         $set: { state: state }
       });
+      if (state == roomState.TOURNAMENT){
+        await this.initTournament();
+      }
     } else {
       throw new errors[400]("New state is invalid");
     }
