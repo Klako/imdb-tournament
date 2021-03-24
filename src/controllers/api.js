@@ -165,6 +165,9 @@ exports.bracket = (req, res) => {
       if (room.state != rooms.state.TOURNAMENT){
         throw new errors[403]("Must be in tournament mode to request bracket");
       }
+      if (!room.hasUser(req.profile.id)){
+        throw new errors[401]("Must be in room to request bracket you fucking loser");
+      }
       var bracket = room.tournament.activeBracket;
       res.json({
         movies: bracket.movies.map((movie) => ({
