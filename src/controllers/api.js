@@ -145,7 +145,14 @@ exports.roomUsers = (req, res) => {
 exports.roomUser = (req, res) => {
   handler(req, res, {
     DELETE: async (req, res) => {
-
+      var roomId = req.params.rid;
+      var userId = req.params.uid;
+      var room = await rooms.getRoom(roomId);
+      if (req.profile.id != room.owner){
+        throw new errors[401]("Only host can kick users");
+      }
+      await room.removeUser(userId);
+      res.end();
     }
   })
 }
