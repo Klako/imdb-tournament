@@ -34,14 +34,12 @@ const loadMovies = function () {
   });
 }
 
-const updateUi = async function () {
-  while (true) {
+$(async () => {
+  while (true){
     loadMovies();
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-}
-
-$(updateUi)
+});
 
 $(function () {
   var addMovieButton = $("#addmovie-button");
