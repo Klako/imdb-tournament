@@ -25,7 +25,7 @@ function updatePairVote() {
     this.info.movie1Card.addClass('border-primary');
     this.info.movie2Card.removeClass('border-primary');
     this.info.movie2Card.addClass('border-danger');
-    this.info.listitem.attr('data-vote', this.info.movie1);
+    this.info.listitem.data('vote', this.info.movie1);
   } else if (this.vote == 2) {
     this.info.movie2Card.css('opacity', '1');
     this.info.movie1Card.css('opacity', '0.6');
@@ -33,7 +33,7 @@ function updatePairVote() {
     this.info.movie2Card.addClass('border-primary');
     this.info.movie1Card.removeClass('border-primary');
     this.info.movie1Card.addClass('border-danger');
-    this.info.listitem.attr('data-vote', this.info.movie2);
+    this.info.listitem.data('vote', this.info.movie2);
   }
 }
 
@@ -84,8 +84,8 @@ $(function () {
     }
     $.ajax({
       method: "POST",
-      url: "/api/room/" + roomId + "/votes",
-      data: votes
+      url: "/api/rooms/" + roomId + "/votes",
+      data: { votes: votes }
     });
   });
 });
