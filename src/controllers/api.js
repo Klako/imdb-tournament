@@ -166,7 +166,7 @@ exports.bracket = (req,res)=>{
         throw new errors[403]("Must be in tournament mode");
       }
       res.json({
-        allUsersHaveVoted: room.allUsersHaveVoted()
+        current: room.tournament.activeBracket.number
       });
     }
   })
