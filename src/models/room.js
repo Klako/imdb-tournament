@@ -52,6 +52,7 @@ async function collection() {
 
 /**
  * Room object with all room info
+ * @class
  * @property {string} id
  */
 class Room {
@@ -163,7 +164,7 @@ class Room {
       await (await collection()).updateOne({ id: this.id }, {
         $set: { state: state }
       });
-      if (state == roomState.TOURNAMENT){
+      if (state == roomState.TOURNAMENT) {
         await this.initTournament();
       }
     } else {
@@ -181,7 +182,8 @@ class Room {
       brackets: [],
       activeBracket: {
         movies: [],
-        pairings: []
+        pairings: [],
+        userVotes: []
       }
     };
     await (await collection()).updateOne({ id: this.id }, {
@@ -235,8 +237,7 @@ class Room {
           movie2: {
             id: movie2.id,
             data: movie2.data
-          },
-          userVotes: []
+          }
         });
       }
     }
@@ -247,48 +248,48 @@ class Room {
   }
 
   async setUserVotes(user, votes) {
-    if (votes.length != this.tournament.activeBracket.length) {
+    var activeBracket = this.tournament.activeBracket;
+    if (activeBracket.userVotes.some((userVote) => userVote.user == user)) {
+      throw new errors[403]("User has already voted");
+    }
+    if (votes.length != activeBracket.pairings.length) {
       throw new errors[400]("Number of votes not the same as number of pairings");
     }
-    var rooms = await collection();
-    for (var [index, pairing] of this.tournament.activeBracket.entries()) {
-
-      var vote = String(votes[index]);
-      var currentVote = pairing.userVotes.find((vote) => vote.user == user);
-      if (currentVote) {
-        currentVote.vote = vote;
-        await rooms.updateOne({ id: this.id },
-          { $set: { "tournament.activeBracket.$[pairing].userVotes.$[user].vote": vote } },
-          {
-            arrayfilters: [
-              { pairing: { 'movie1.id': pairing.movie1.id, 'movie2.id': pairing.movie2.id } },
-              { user: { user: user } }
-            ]
-          }
-        );
-      } else {
-        var newVote = { user: user, movieId: vote };
-        pairing.userVotes.push(newVote);
-        await rooms.updateOne({ id: this.id },
-          { $push: { "tournament.activeBracket.$[pairing].userVotes": newVote } }
-        );
+    for (var [index, pairing] of activeBracket.pairings.entries()) {
+      var vote = votes[index];
+      if (vote !== pairing.movie1.id && vote !== pairing.movie2.id) {
+        throw new errors[400](`Vote in index ${index} is not valid`);
       }
     }
+    var userVote = { user: user, votes: votes };
+    activeBracket.userVotes.push(userVote);
+    await (await collection()).updateOne({ id: this.id }, {
+      $push: { 'tournament.activeBracket.userVotes': userVote }
+    });
   }
 
-  checkBracketWinners() {
+  allUsersHaveVoted() {
+    var activeBracket = this.tournament.activeBracket;
+    return this.users.every((user) =>
+      activeBracket.userVotes.some((userVote) =>
+        userVote.user == user
+      )
+    );
+  }
+
+  getBracketWinners() {
     var activeBracket = this.tournament.activeBracket;
     var points = activeBracket.movies.map((movie) => ({
       id: movie.id,
       points: 0
     }));
-    for (var pairing in activeBracket.pairings) {
+    for (var [index, pairing] of activeBracket.pairings.entries()) {
       var movie1Points = 0;
       var movie2Points = 0;
-      for (var userVote in pairing.userVotes) {
-        if (userVote.movieId == pairing.movie1.id) {
+      for (var userVote in activeBracket.userVotes) {
+        if (userVote.votes[index] == pairing.movie1.id) {
           movie1Points++;
-        } else if (userVote.movieId == pairing.movie2.id) {
+        } else if (userVote.votes[index] == pairing.movie2.id) {
           movie2Points++;
         }
       }
@@ -303,14 +304,9 @@ class Room {
         movie2.points++;
       }
     }
-    var winners = [points.unshift()];
-    for (var movie of points) {
-      if (movie.points > winners[0].points) {
-        winners = [movie];
-      } else if (movie.points == winners[0].points) {
-        winners.push(movie);
-      }
-    }
+    var winners = points.sort((a, b) => a.points - b.points).slice(-2);
     return winners.map((winner) => winner.id);
   }
 }
+
+exports.Room = Room;
