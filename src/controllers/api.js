@@ -162,10 +162,10 @@ exports.bracket = (req, res) => {
     GET: async (req, res) => {
       var roomId = req.params.rid;
       var room = await rooms.getRoom(roomId);
-      if (room.state != rooms.state.TOURNAMENT){
+      if (room.state != rooms.state.TOURNAMENT) {
         throw new errors[403]("Must be in tournament mode to request bracket");
       }
-      if (!room.hasUser(req.profile.id)){
+      if (!room.hasUser(req.profile.id)) {
         throw new errors[401]("Must be in room to request bracket you fucking loser");
       }
       var bracket = room.tournament.activeBracket;
@@ -190,4 +190,12 @@ exports.bracket = (req, res) => {
       });
     }
   })
+}
+
+exports.votes = (req, res) => {
+  handler(req, res, {
+    POST: async (req, res) => {
+      
+    }
+  });
 }
