@@ -20,7 +20,7 @@ $(function () {
 function updatePairVote() {
   if (this.vote == 1) {
     this.info.movie1Card.css('opacity', '1');
-    this.info.movie2Card.css('opacity', '0.5');
+    this.info.movie2Card.css('opacity', '0.6');
     this.info.movie1Card.removeClass('border-danger');
     this.info.movie1Card.addClass('border-primary');
     this.info.movie2Card.removeClass('border-primary');
@@ -28,7 +28,7 @@ function updatePairVote() {
     this.info.listitem.attr('data-vote', this.info.movie1);
   } else if (this.vote == 2) {
     this.info.movie2Card.css('opacity', '1');
-    this.info.movie1Card.css('opacity', '0.5');
+    this.info.movie1Card.css('opacity', '0.6');
     this.info.movie2Card.removeClass('border-danger');
     this.info.movie2Card.addClass('border-primary');
     this.info.movie1Card.removeClass('border-primary');
@@ -44,19 +44,20 @@ $(function () {
     url: "/api/rooms/" + roomId + "/bracket"
   }).done((data) => {
     for (var [index, pairing] of data.pairings.entries()) {
-      var movie1Card = $('<div class="card border"></div>');
+      var movie1Card = $('<div class="card border"></div>').css('opacity', '0.6');
       $('<img/>', { class: 'card-img-top', src: pairing.movie1.image }).appendTo(movie1Card);
       var movie1CardBody = $('<div/>', { class: "card-body" }).appendTo(movie1Card);
       $('<h5/>', { class: 'card-title', text: pairing.movie1.title }).appendTo(movie1CardBody);
 
-      var movie2Card = $('<div class="card border"></div>');
+      var movie2Card = $('<div class="card border"></div>').css('opacity', '0.6');
       $('<img/>', { class: 'card-img-top', src: pairing.movie2.image }).appendTo(movie2Card);
       var movie2CardBody = $('<div/>', { class: "card-body" }).appendTo(movie2Card);
       $('<h5/>', { class: 'card-title', text: pairing.movie2.title }).appendTo(movie2CardBody);
 
       var row = $('<div class="row"></div>');
-      movie1Card.appendTo(row).wrap('<div class="col-6"></div>');
-      movie2Card.appendTo(row).wrap('<div class="col-6"></div>');
+      movie1Card.appendTo(row).wrap('<div class="col-5"></div>');
+      row.append('<div class="col-2 align-self-center text-center">VS</div>');
+      movie2Card.appendTo(row).wrap('<div class="col-5"></div>');
 
       var pairingUi = $('<li/>', { class: 'list-group-item' })
         .append(row).attr('data-vote', '');
