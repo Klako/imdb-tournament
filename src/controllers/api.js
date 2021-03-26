@@ -33,15 +33,6 @@ function handler(req, res, handlers) {
   }
 }
 
-/**
- * 
- * @param {Response} res 
- * @param {import('http-errors').HttpError} reason 
- */
-function doError(res, reason) {
-  res.status(reason.statusCode).json({ error: reason.message });
-}
-
 exports.profile = function (req, res) {
   handler(req, res, {
     GET: async (req, res) => {
