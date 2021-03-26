@@ -6,19 +6,3 @@ export interface IProfile extends Document {
 }
 
 export function connect(): Promise<Model<IProfile>>;
-
-const profileSchema: Schema<IProfile>;
-
-declare global {
-  namespace Express {
-    interface Request {
-      profile: IProfile;
-    }
-  }
-}
-
-declare module 'express-session' {
-  interface SessionData {
-    profileId: string;
-  }
-}
