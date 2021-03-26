@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@timvdeijnden/imdb-scraper": "^2.0.0",
+    "@types/mongoose": "^5.10.4",
     "a1-database": "^1.5.0",
     "bootstrap": "^4.6.0",
     "connect-mongodb-session": "^2.4.1",
