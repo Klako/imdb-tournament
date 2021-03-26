@@ -10,8 +10,9 @@ const roomState = {
   TOURNAMENT: "tournament",
   WINNER: "winner"
 };
-
 exports.state = roomState;
+
+
 
 /**
  * Creates a new room with user as owner
@@ -49,6 +50,55 @@ async function getMovieData(imdbId) {
 async function collection() {
   return (await mongodb.connect()).collection('rooms');
 }
+
+/**
+ * @class Room
+ * @mixes {roomSchema.methods}
+ */
+const roomSchema = {
+  id: String,
+  movies: [{ id: String, owner: String }],
+  users: [String],
+  owner: String,
+  settings: {
+    minperuser: Number,
+    maxperuser: Number,
+    candropinvote: Boolean
+  },
+  state: String,
+  tournament: {
+    movies: [{
+      id: String,
+      data: Object,
+      eliminated: { type: Boolean, default: false }
+    }],
+    brackets: [[{
+      id: String,
+      data: Object
+    }]],
+    activeBracket: {
+      number: { type: Number, default: 0 },
+      movies: [{
+        id: String,
+        data: Object
+      }],
+      pairings: [{
+        movie1: {
+          id: String,
+          data: String
+        },
+        movie2: {
+          id: String,
+          data: String
+        }
+      }],
+      userVotes: [{
+        user: String,
+        votes: [String]
+      }]
+    }
+  }
+};
 
 /**
  * Room object with all room info
@@ -178,7 +228,7 @@ class Room {
       var found = false;
       for (var user of this.users) {
         var movie = this.movies.filter((movie) =>
-          movie.owner == user).at(i); 
+          movie.owner == user).at(i);
         if (movie) {
           movies.push({
             id: movie.id,
