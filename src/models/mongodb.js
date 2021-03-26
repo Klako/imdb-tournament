@@ -15,7 +15,7 @@ mongoose.connect(uri);
 
 exports.uri = uri;
 exports.database = mongoDatabase;
-exports.mongoose = () => mongoose;
+exports.mongoose = mongoose;
 exports.connect = async () => {
     var client = await mongodb.connect(uri);
     return client.db(mongoDatabase);
