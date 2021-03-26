@@ -6,7 +6,7 @@ var logger = require('morgan');
 var mongodb = require('./models/mongodb.js');
 var session = require('express-session');
 var MongoDbStore = require('connect-mongodb-session')(session);
-var profiles = require('./models/profile.js');
+var profile = require('./models/profile');
 
 var mainRouter = require('./routes/router');
 var apiRouter = require('./routes/api');
@@ -35,11 +35,12 @@ app.use(session({
 }));
 
 app.use(async (req, res, next) => {
-  if (req.session.profileId){
-    /** @augments Request */
-    req.profile = await profiles.get(req.session.profileId);
+  var profiles = await profile.connect();
+  if (req.session.profileId) {
+    req.profile = await profiles.findById(req.session.profileId).exec();
   } else {
-    req.profile = await profiles.create();
+    req.profile = await profiles.create({});
+    await req.profile.save();
     req.session.profileId = req.profile.id;
   }
   next();
