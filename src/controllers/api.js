@@ -46,7 +46,7 @@ exports.profile = function (req, res) {
       } else {
         result.name = false;
       }
-      
+      await req.profile.save();
       res.json(result);
     }
   })
