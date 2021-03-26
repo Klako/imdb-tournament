@@ -17,7 +17,7 @@ exports.get = function (req, res) {
     } else if (room.state == rooms.state.TOURNAMENT) {
       res.render("tournament", { room: room, profile: req.profile });
     } else if (room.state == rooms.state.WINNER) {
-
+      res.render("winner", { room: room });
     }
   });
 }

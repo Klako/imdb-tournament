@@ -181,6 +181,7 @@ class Room {
       })),
       brackets: [],
       activeBracket: {
+        number: 0,
         movies: [],
         pairings: [],
         userVotes: []
@@ -245,6 +246,10 @@ class Room {
     await rooms.updateOne({ id: this.id }, {
       $set: { "tournament.activeBracket.pairings": pairings }
     });
+    this.tournament.activeBracket.userVotes = [];
+    await rooms.updateOne({ id: this.id }, {
+      $set: { "tournament.activeBracket.userVotes": [] }
+    });
   }
 
   async setUserVotes(user, votes) {
@@ -266,6 +271,9 @@ class Room {
     await (await collection()).updateOne({ id: this.id }, {
       $push: { 'tournament.activeBracket.userVotes': userVote }
     });
+    if (this.allUsersHaveVoted()) {
+      await this.endBracket();
+    }
   }
 
   allUsersHaveVoted() {
@@ -277,7 +285,49 @@ class Room {
     );
   }
 
-  getBracketWinners() {
+  async endBracket() {
+    var results = this.getBracketResults();
+    var rooms = await collection();
+    for (var loser of results.losers) {
+      this.tournament.movies.find((movie) => movie.id == loser).eliminated = true;
+    }
+    var winners = this.tournament.movies.filter((movie) =>
+      results.winners.includes(movie.id)
+    ).map((movie) => ({
+      id: movie.id,
+      data: movie.data
+    }));
+    var brackets = this.tournament.brackets;
+    if (brackets.length > 0 && brackets.at(-1).length == 2) {
+      var lastBracket = brackets.at(-1).concat(winners);
+      await rooms.updateOne({ id: this.id }, {
+        $set: { 'tournament.brackets.-1': lastBracket }
+      });
+    } else {
+      brackets.push(winners);
+      await rooms.updateOne({ id: this.id }, {
+        $push: { 'tournament.brackets': winners }
+      });
+    }
+    this.tournament.activeBracket.number++;
+    await rooms.updateOne({ id: this.id }, {
+      $inc: { 'tournament.activeBracket.number': 1 }
+    });
+    if (brackets.length == 1 && brackets[0].length == 1) {
+      await this.setWinner(brackets[0][0]);
+      await this.setState(roomState.WINNER);
+    }
+    await this.initBracket();
+  }
+
+  async setWinner(winner) {
+    this.tournament.winner = winner;
+    await (await collection()).updateOne({ id: this.id }, {
+      $set: { 'tournament.winner': winner }
+    });
+  }
+
+  getBracketResults() {
     var activeBracket = this.tournament.activeBracket;
     var points = activeBracket.movies.map((movie) => ({
       id: movie.id,
@@ -286,7 +336,7 @@ class Room {
     for (var [index, pairing] of activeBracket.pairings.entries()) {
       var movie1Points = 0;
       var movie2Points = 0;
-      for (var userVote in activeBracket.userVotes) {
+      for (var userVote of activeBracket.userVotes) {
         if (userVote.votes[index] == pairing.movie1.id) {
           movie1Points++;
         } else if (userVote.votes[index] == pairing.movie2.id) {
@@ -304,8 +354,14 @@ class Room {
         movie2.points++;
       }
     }
-    var winners = points.sort((a, b) => a.points - b.points).slice(-2);
-    return winners.map((winner) => winner.id);
+    var isLastBracket = this.tournament.brackets.length == 0
+      && this.tournament.activeBracket.movies.length == 2;
+    var winners = points.sort((a, b) => a.points - b.points).slice(isLastBracket ? -1 : -2);
+    var losers = points.filter((movie) => !winners.some((winner) => winner.id == movie.id));
+    return {
+      winners: winners.map((movie) => movie.id),
+      losers: losers.map((movie) => movie.id)
+    }
   }
 }
 

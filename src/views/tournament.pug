@@ -10,6 +10,10 @@ block content
   if profile.id == room.owner
     button(type="button" class="btn btn-primary mb-3" id="backtolobby") GO BACK (╯°□°)╯︵ ┻━┻
   div(class="row")
+    each user in room.users
+      div(class="col-auto")
+        span(class="badge badge-primary")= user
+  div(class="row")
     div(class="col-3")
       h3 Movies
       ul(class="list-group" id="movielist")

@@ -19,7 +19,7 @@ router.all('/rooms/:id/movies', api.movies);
 router.all('/rooms/:rid/movies/:mid', api.movie);
 router.all('/rooms/:rid/bracket', api.bracket);
 router.all('/rooms/:rid/bracket/pairings', api.bracketPairings);
-router.all('/rooms/:rid/votes', api.votes);
+router.all('/rooms/:rid/bracket/votes', api.votes);
 
 
 

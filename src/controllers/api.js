@@ -208,7 +208,7 @@ exports.votes = (req, res) => {
   handler(req, res, {
     POST: async (req, res) => {
       var room = await rooms.getRoom(req.params.rid);
-      await room.setUserVotes(req.profile.id, req.body['votes[]']);
+      await room.setUserVotes(req.profile.id, req.body.votes);
       res.end();
     }
   });
