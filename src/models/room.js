@@ -173,12 +173,27 @@ class Room {
   }
 
   async initTournament() {
+    var movies = [];
+    for (var i = 0; ; i++) {
+      var found = false;
+      for (var user of this.users) {
+        var movie = this.movies.filter((movie) =>
+          movie.owner == user).at(i); 
+        if (movie) {
+          movies.push({
+            id: movie.id,
+            data: movie.data,
+            eliminated: false
+          });
+          found = true;
+        }
+      }
+      if (found) {
+        break;
+      }
+    }
     this.tournament = {
-      movies: this.movies.map((movie) => ({
-        id: movie.id,
-        data: movie.data,
-        eliminated: false
-      })),
+      movies: movies,
       brackets: [],
       activeBracket: {
         number: 0,
