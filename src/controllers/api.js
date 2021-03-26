@@ -1,5 +1,5 @@
 const express = require('express');
-const rooms = require('../models/room.js');
+const rooms = require('../models/room');
 const profiles = require('../models/profile');
 const errors = require('http-errors');
 var exports = module.exports;
@@ -41,7 +41,7 @@ exports.profile = function (req, res) {
     PATCH: async (req, res) => {
       var result = {};
       if (req.body.name) {
-        await req.profile.setName(String(req.body.name));
+        req.profile.setName(String(req.body.name));
         result.name = true;
       } else {
         result.name = false;
@@ -79,11 +79,12 @@ exports.room = (req, res) => {
       }
       var result = {};
       if (req.body.state) {
-        await room.setState(String(req.body.state));
+        room.setState(String(req.body.state));
         result.state = true;
       } else {
         req.body.state = false;
       }
+      room.save();
       res.json(result);
     }
   })
@@ -107,6 +108,7 @@ exports.movies = (req, res) => {
       var roomId = req.params.id;
       var room = await rooms.getRoom(roomId);
       await room.addMovie(req.body.id, req.profile.id);
+      await room.save();
       res.end();
     }
   })
@@ -118,7 +120,8 @@ exports.movie = (req, res) => {
       var roomId = req.params.rid;
       var movieId = req.params.mid;
       var room = await rooms.getRoom(roomId);
-      await room.removeMovie(movieId);
+      room.removeMovie(movieId);
+      await room.save();
       res.end();
     }
   })
@@ -143,18 +146,19 @@ exports.roomUser = (req, res) => {
       if (req.profile.id != room.owner) {
         throw new errors[401]("Only host can kick users");
       }
-      await room.removeUser(userId);
+      room.removeUser(userId);
+      await room.save();
       res.end();
     }
   })
 }
 
-exports.bracket = (req,res)=>{
-  handler(req,res,{
-    GET: async (req,res) => {
-      var roomId =req.params.rid;
-      var room =await rooms.getRoom(roomId);
-      if (room.state!=rooms.state.TOURNAMENT){
+exports.bracket = (req, res) => {
+  handler(req, res, {
+    GET: async (req, res) => {
+      var roomId = req.params.rid;
+      var room = await rooms.getRoom(roomId);
+      if (room.state != rooms.state.TOURNAMENT) {
         throw new errors[403]("Must be in tournament mode");
       }
       res.json({
@@ -200,7 +204,8 @@ exports.votes = (req, res) => {
   handler(req, res, {
     POST: async (req, res) => {
       var room = await rooms.getRoom(req.params.rid);
-      await room.setUserVotes(req.profile.id, req.body.votes);
+      room.setUserVotes(req.profile.id, req.body.votes);
+      await room.save();
       res.end();
     }
   });

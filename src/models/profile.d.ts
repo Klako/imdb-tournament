@@ -6,3 +6,6 @@ export interface IProfile extends Document {
 }
 
 export function connect(): Promise<Model<IProfile>>;
+
+export function create(): Promise<IProfile>;
+export function get(profileId: string): Promise<IProfile>;
