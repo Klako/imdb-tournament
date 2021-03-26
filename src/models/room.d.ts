@@ -15,14 +15,14 @@ export interface IRoom extends Document {
     movies: [{
       id: string,
       data: object,
-      eliminated: { type: boolean, default: false }
+      eliminated: boolean
     }],
     brackets: [[{
       id: string,
       data: object
     }]],
     activeBracket: {
-      number: { type: number, default: 0 },
+      number: number,
       movies: [{
         id: string,
         data: object
@@ -46,5 +46,3 @@ export interface IRoom extends Document {
 }
 
 export function connect(): Promise<Model<IRoom>>;
-
-const roomSchema: Schema<IRoom>;
