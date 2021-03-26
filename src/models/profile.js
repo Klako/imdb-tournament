@@ -1,8 +1,18 @@
 const mongodb = require('./mongodb.js');
+const { Schema } = require('mongoose');
 const errors = require('http-errors');
 const { ObjectId } = require('bson');
 
 exports = module.exports;
+
+const profileSchema = new Schema({
+  name: String
+});
+
+exports.connect = async () => {
+  var db = await mongodb.mongoose();
+  return db.model('Profile', profileSchema);
+}
 
 exports.create = async () => {
   return await Profile.new();
