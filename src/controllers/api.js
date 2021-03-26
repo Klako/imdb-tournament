@@ -1,13 +1,13 @@
 const express = require('express');
 const rooms = require('../models/room.js');
-const profiles = require('../models/profile.js');
+const profiles = require('../models/profile');
 const errors = require('http-errors');
 var exports = module.exports;
 
 /**
  * @callback ApiHandler
- * @param {Request} req 
- * @param {Response} res 
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
  * @return {Promise<void>} 
  */
 
@@ -46,6 +46,7 @@ exports.profile = function (req, res) {
       } else {
         result.name = false;
       }
+      
       res.json(result);
     }
   })
