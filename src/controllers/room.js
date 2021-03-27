@@ -1,6 +1,6 @@
 const express = require('express');
 const { NotFound } = require('http-errors');
-const rooms = require('../models/room.js');
+const rooms = require('../models/room');
 var exports = module.exports;
 
 exports.get = function (req, res) {
@@ -11,6 +11,7 @@ exports.get = function (req, res) {
   rooms.getRoom(roomId).then((room) => {
     if (!room.hasUser(req.profile.id)) {
       room.addUser(req.profile.id);
+      room.save();
     }
     if (room.state == rooms.state.LOBBY) {
       res.render("lobby", { room: room, profile: req.profile });
