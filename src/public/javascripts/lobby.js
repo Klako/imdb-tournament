@@ -19,7 +19,7 @@ const loadMovies = function () {
     }));
     var actualMovies = data.map((movie) => movie.id);
     var removals = currentMovies.filter((movie) => !actualMovies.includes(movie.id));
-    var additions = data.filter((movie) => !currentMovies.some((currentMovie)=>currentMovie.id == movie.id));
+    var additions = data.filter((movie) => !currentMovies.some((currentMovie) => currentMovie.id == movie.id));
     for (var removal of removals) {
       removal.elem.remove();
     }
@@ -34,9 +34,21 @@ const loadMovies = function () {
   });
 }
 
+const checkRoomState = function () {
+  $.ajax({
+    method: "GET",
+    url: "/api/rooms/" + roomId
+  }).done((data) => {
+    if (data.state != 'lobby') {
+      window.location.reload();
+    }
+  });
+}
+
 $(async () => {
-  while (true){
+  while (true) {
     loadMovies();
+    checkRoomState();
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 });
@@ -59,17 +71,17 @@ $(function () {
   });
 });
 
-$(function (){
+$(function () {
   var startButton = $("#starttournament");
-  if (startButton.length != 0){
-    startButton.on('click', () =>{
+  if (startButton.length != 0) {
+    startButton.on('click', () => {
       $.ajax({
         method: "PATCH",
         url: "/api/rooms/" + roomId,
         data: {
           state: "tournament"
         }
-      }).done(()=>{
+      }).done(() => {
         window.location.reload();
       }).fail((error) => {
         console.log(error);
