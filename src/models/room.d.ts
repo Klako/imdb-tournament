@@ -52,7 +52,11 @@ export interface IRoom extends Document {
         user: string,
         votes: [string]
       }],
-      winner: string
+      winner: {
+        id: string,
+        title: string,
+        image: string
+      }
     }
   };
   initTournament(): void;

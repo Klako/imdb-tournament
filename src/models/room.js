@@ -87,7 +87,11 @@ const roomSchema = new Schema({
         votes: [String]
       }]
     },
-    winner: String
+    winner: {
+      id: String,
+      title: String,
+      image: String
+    }
   }
 });
 
@@ -286,7 +290,12 @@ roomSchema.methods.endBracket = function () {
   }
   this.tournament.activeBracket.number++;
   if (brackets.length == 1 && brackets[0].length == 1) {
-    this.tournament.winner = brackets[0][0];
+    var winner = brackets[0][0];
+    this.tournament.winner = {
+      id: winner.id,
+      title: winner.data.title,
+      image: winner.data.poster
+    };
     this.setState(roomState.WINNER);
   }
   this.initBracket();
