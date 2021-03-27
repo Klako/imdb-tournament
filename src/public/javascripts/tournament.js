@@ -111,10 +111,14 @@ $(getBracket);
 $(async () => {
   while (true) {
     if (doneVoting) {
-      var bracket = await $.ajax({
-        method: "GET",
-        url: "/api/rooms/" + roomId + "/bracket"
-      });
+      try {
+        var bracket = await $.ajax({
+          method: "GET",
+          url: "/api/rooms/" + roomId + "/bracket"
+        });
+      } catch (error) {
+        window.location.reload();
+      }
       if (currentBracket != bracket.current) {
         getBracket();
         doneVoting = false;
