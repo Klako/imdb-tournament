@@ -8,6 +8,10 @@ block extrahead
 block content 
   p Room ID:
     = room.id
+  div(class="row")
+    each user in room.users
+      div(class="col-auto")
+        span(class="badge badge-primary")= user
   if profile.id == room.owner
     button(type="button" class="btn btn-primary mb-3" id="starttournament") Start Tournament
   div(class="row mb-3")
