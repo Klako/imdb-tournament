@@ -24,13 +24,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // session
+const secret = process.env.SESSION_SECRET;
+if (!secret) {
+  throw new Error("Session secret environment variable is not set");
+}
 app.use(session({
   store: new MongoDbStore({
     uri: mongodb.uri,
     databaseName: mongodb.database,
     collection: 'sessions'
   }),
-  secret: 'super secret secret',
+  secret: process.env.SESSION_SECRET,
   cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
