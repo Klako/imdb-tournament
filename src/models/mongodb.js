@@ -13,12 +13,7 @@ const uri = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPor
 
 exports.uri = uri;
 exports.database = mongoDatabase;
-exports.connect = async () => {
-    var client = await mongodb.connect(uri);
-    return client.db(mongoDatabase);
-};
 exports.mongoose = async () =>{
-    var connection = await mongoose.createConnection(uri);
-    connection.useDb(mongoDatabase);
-    return connection;
+    await mongoose.connect(uri);
+    return mongoose.connection;
 }
