@@ -34,7 +34,7 @@ app.use(session({
     databaseName: mongodb.database,
     collection: 'sessions'
   }),
-  secret: process.env.SESSION_SECRET,
+  secret: secret,
   cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
