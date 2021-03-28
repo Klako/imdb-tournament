@@ -9,7 +9,7 @@ const mongoHost = process.env.MONGO_HOST;
 const mongoPort = process.env.MONGO_PORT;
 const mongoDatabase = process.env.MONGO_DATABASE;
 
-const uri = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}`;
+const uri = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}/${mongoDatabase}`;
 
 exports.uri = uri;
 exports.database = mongoDatabase;
