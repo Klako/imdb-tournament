@@ -2,6 +2,7 @@ const express = require('express');
 const rooms = require('../models/room');
 const profiles = require('../models/profile');
 const errors = require('http-errors');
+const { simpleSearch: imdbSearch } = require('@timvdeijnden/imdb-scraper');
 var exports = module.exports;
 
 /**
@@ -15,7 +16,7 @@ var exports = module.exports;
  * Sends request to callback based on request method.
  * @param {Request} req 
  * @param {Response} res 
- * @param {Object.<string, ApiHandler} handlers 
+ * @param {Object.<string, import('express').RequestHandler} handlers 
  */
 function handler(req, res, handlers) {
   if (handlers[req.method]) {
@@ -209,4 +210,18 @@ exports.votes = (req, res) => {
       res.end();
     }
   });
+}
+
+exports.imdb = (req, res) => {
+  handler(req, res, {
+    GET: async (req, res) => {
+      var searchTerm = req.query.term;
+      var results = await imdbSearch(searchTerm);
+      res.json(results.d.map((result)=>({
+        id: result.id,
+        title: result.l,
+        image: result.i[0]
+      })));
+    }
+  })
 }

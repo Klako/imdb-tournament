@@ -56,12 +56,50 @@ $(async () => {
 $(function () {
   var addMovieButton = $("#addmovie-button");
   var addMovieId = $("#addmovie-id");
+  var suggestions = $("#addmovie-suggestions");
+  var searchDelay;
+  addMovieId.on('change', () => {
+
+    clearTimeout(searchDelay);
+    searchDelay = setTimeout(async () => {
+      var results = await $.ajax({
+        method: "GET",
+        url: "/api/imdb",
+        data: {
+          term: addMovieId.val()
+        }
+      });
+      suggestions.children().remove();
+      if (results.length > 0) {
+        for (var movie of results) {
+          var suggestion = $('<a href="#"/ class="dropdown-item">')
+            .data('movieId', movie.id)
+            .data('movieTitle', movie.title)
+            .text(movie.title)
+            .on('click', function () {
+              addMovieId.data('movieId', $(this).data('movieId'));
+              addMovieId.val($(this).data('movieTitle'));
+              addMovieId.dropdown('hide');
+            });
+          suggestions.append(suggestion);
+        }
+      } else {
+        var erroritem = $('<a href="#"/ class="dropdown-item">')
+          .text('No movies found')
+          .on('click', function () {
+            addMovieId.dropdown('hide');
+          });
+        suggestions.append(erroritem);
+      }
+      addMovieId.dropdown('show');
+    }, 1000);
+  })
   addMovieButton.on("click", () => {
     $.ajax({
       method: "POST",
       url: "/api/rooms/" + roomId + "/movies",
       data: {
-        id: addMovieId.val()
+        id: addMovieId.data('movieId')
       }
     }).done(() => {
       loadMovies();

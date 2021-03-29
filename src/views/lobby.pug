@@ -16,7 +16,9 @@ block content
     button(type="button" class="btn btn-primary mb-3" id="starttournament") Start Tournament
   div(class="row mb-3")
     div(class="input-group col-3")
-      input(type="text" id="addmovie-id" class="form-control")
+      div(class="dropdown")
+        input(type="text" id="addmovie-id" class="form-control" data-toggle="dropdown")
+        div(class="dropdown-menu" aria-labelledby="addmovie-id" id="addmovie-suggestions")
       div(class="input-group-append")
         button(type="button" class="btn btn-outline-secondary" id="addmovie-button") Add movie
   h3 Movies
