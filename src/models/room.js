@@ -45,6 +45,8 @@ exports.connect = async () => {
   return db.model('Room', roomSchema);
 }
 
+/** @typedef {Schema<import('./room').IRoom>} IRoom */
+
 /** @type {Schema<import('./room.js').IRoom>} */
 const roomSchema = new Schema({
   movies: [{ id: String, owner: String, data: Object }],
@@ -95,30 +97,27 @@ const roomSchema = new Schema({
   }
 });
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.addUser = function (user) {
+
+roomSchema.method('addUser', function (user) {
   if (this.users.includes(user)) {
     throw new errors[400]("User is already in room");
   }
   this.users.push(user);
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.removeUser = function (user) {
+roomSchema.method('removeUser', function (user) {
   if (!this.users.includes(user)) {
     throw new errors[400]("User is not in room");
   }
   this.users = this.users.filter(user => user != user);
   this.movies = this.movies.filter(movie => movie.owner != user);
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.hasUser = function (user) {
+roomSchema.method('hasUser', function (user) {
   return this.users.includes(user);
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.addMovie = async function (imdbId, owner) {
+roomSchema.method('addMovie', async function (imdbId, owner) {
   if (this.state != roomState.LOBBY) {
     throw new errors[403]("Room not in lobby mode");
   }
@@ -136,18 +135,16 @@ roomSchema.methods.addMovie = async function (imdbId, owner) {
     data: movie
   }
   this.movies.push(newMovie);
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.removeMovie = function (imdbId) {
+roomSchema.method('removeMovie', function (imdbId) {
   if (this.state != roomState.LOBBY) {
     throw new errors[403]("Room not in lobby mode");
   }
   this.movies = this.movies.filter(movie => movie.id != imdbId);
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.setState = async function (state) {
+roomSchema.method('setState', async function (state) {
   if (Object.values(roomState).includes(state)) {
     this.state = state;
     if (state == roomState.TOURNAMENT) {
@@ -156,10 +153,9 @@ roomSchema.methods.setState = async function (state) {
   } else {
     throw new errors[400]("New state is invalid");
   }
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.initTournament = function () {
+roomSchema.method('initTournament', function () {
   var movies = [];
   for (var i = 0; ; i++) {
     var found = false;
@@ -191,10 +187,9 @@ roomSchema.methods.initTournament = function () {
   };
   this.bracketise();
   this.initBracket();
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.bracketise = function () {
+roomSchema.method('bracketise', function () {
   var bracketMovies = this.tournament.movies
     .filter((movie) => !movie.eliminated)
     .map((movie) => ({
@@ -212,10 +207,9 @@ roomSchema.methods.bracketise = function () {
     }
   }
   this.tournament.brackets = brackets;
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.initBracket = function () {
+roomSchema.method('initBracket', function () {
   var bracket = this.tournament.brackets.shift();
   this.tournament.activeBracket.movies = bracket;
   var pairings = [];
@@ -235,10 +229,9 @@ roomSchema.methods.initBracket = function () {
   }
   this.tournament.activeBracket.pairings = pairings;
   this.tournament.activeBracket.userVotes = [];
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.setUserVotes = async function (user, votes) {
+roomSchema.method('setUserVotes', async function (user, votes) {
   var activeBracket = this.tournament.activeBracket;
   if (activeBracket.userVotes.some((userVote) => userVote.user == user)) {
     throw new errors[403]("User has already voted");
@@ -257,20 +250,18 @@ roomSchema.methods.setUserVotes = async function (user, votes) {
   if (this.allUsersHaveVoted()) {
     this.endBracket();
   }
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.allUsersHaveVoted = function () {
+roomSchema.method('allUsersHaveVoted', function () {
   var activeBracket = this.tournament.activeBracket;
   return this.users.every((user) =>
     activeBracket.userVotes.some((userVote) =>
       userVote.user == user
     )
   );
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.endBracket = function () {
+roomSchema.method('endBracket', function () {
   var results = this.getBracketResults();
   for (var loser of results.losers) {
     this.tournament.movies.find((movie) => movie.id == loser).eliminated = true;
@@ -299,10 +290,9 @@ roomSchema.methods.endBracket = function () {
     this.setState(roomState.WINNER);
   }
   this.initBracket();
-}
+});
 
-/** @this {import('./room').IRoom} */
-roomSchema.methods.getBracketResults = function () {
+roomSchema.method('getBracketResults', function () {
   var activeBracket = this.tournament.activeBracket;
   var points = activeBracket.movies.map((movie) => ({
     id: movie.id,
@@ -337,4 +327,4 @@ roomSchema.methods.getBracketResults = function () {
     winners: winners.map((movie) => movie.id),
     losers: losers.map((movie) => movie.id)
   }
-}
+});
