@@ -15,6 +15,8 @@ services:
       MONGO_USERNAME: "root"
       MONGO_PASSWORD: "abc123"
       MONGO_DATABASE: "tournament"
+      NODE_PATH: "/usr/src/app/node_modules"
+      SESSION_SECRET: "io345oi345oij34oi5j3o45f98f349f8j349f"
     links:
       - mongo
     depends_on:
@@ -22,5 +24,5 @@ services:
   mongo:
     image: mongo
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: abc123
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "abc123"
