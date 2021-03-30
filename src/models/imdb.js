@@ -35,7 +35,7 @@ exports.search = async (query) => {
       try {
         var movie = await this.getMovie(item.identifier);
         movies.push(movie);
-      } catch { }
+      } catch (ex) { }
     }));
     if (movies.length == 10) {
       break;
