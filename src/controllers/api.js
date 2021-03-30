@@ -99,7 +99,7 @@ exports.movies = (req, res) => {
       var room = await rooms.getRoom(roomId);
       var result = await Promise.all(room.movies.map(async (movie) => ({
         id: movie.id,
-        owner: (await profiles.get(movie.owner)).name,
+        owner: movie.owner,
         title: movie.data.title,
         image: movie.data.poster
       })));
