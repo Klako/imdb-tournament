@@ -54,12 +54,13 @@ $(async () => {
 });
 
 $(function () {
-  var addMovieButton = $("#addmovie-button");
   var addMovieId = $("#addmovie-id");
   var suggestions = $("#addmovie-suggestions");
   var searchDelay;
-  addMovieId.on('change', () => {
-
+  addMovieId.on('input', () => {
+    suggestions.children().remove();
+    suggestions.append($('<span class="dropdown-item">...</span>'));
+    addMovieId.dropdown('show');
     clearTimeout(searchDelay);
     searchDelay = setTimeout(async () => {
       var results = await $.ajax({
@@ -77,36 +78,27 @@ $(function () {
             .data('movieTitle', movie.title)
             .text(movie.title)
             .on('click', function () {
-              addMovieId.data('movieId', $(this).data('movieId'));
-              addMovieId.val($(this).data('movieTitle'));
-              addMovieId.dropdown('hide');
+              $.ajax({
+                method: "POST",
+                url: "/api/rooms/" + roomId + "/movies",
+                data: {
+                  id: $(this).data('movieId')
+                }
+              }).done(() => {
+                loadMovies();
+              }).fail((error) => {
+                console.log("bad movie >:(");
+              });
             });
           suggestions.append(suggestion);
         }
       } else {
-        var erroritem = $('<a href="#"/ class="dropdown-item">')
-          .text('No movies found')
-          .on('click', function () {
-            addMovieId.dropdown('hide');
-          });
+        var erroritem = $('<span class="dropdown-item" />')
+          .text('No movies found');
         suggestions.append(erroritem);
       }
-      addMovieId.dropdown('show');
     }, 1000);
   })
-  addMovieButton.on("click", () => {
-    $.ajax({
-      method: "POST",
-      url: "/api/rooms/" + roomId + "/movies",
-      data: {
-        id: addMovieId.data('movieId')
-      }
-    }).done(() => {
-      loadMovies();
-    }).fail((error) => {
-      console.log("bad movie >:(");
-    });
-  });
 });
 
 $(function () {

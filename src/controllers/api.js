@@ -3,6 +3,7 @@ const rooms = require('../models/room');
 const profiles = require('../models/profile');
 const errors = require('http-errors');
 const { simpleSearch: imdbSearch } = require('@timvdeijnden/imdb-scraper');
+const imdb = require('../models/imdb');
 var exports = module.exports;
 
 /**
@@ -216,11 +217,10 @@ exports.imdb = (req, res) => {
   handler(req, res, {
     GET: async (req, res) => {
       var searchTerm = req.query.term;
-      var results = await imdbSearch(searchTerm);
-      res.json(results.d.map((result)=>({
+      var results = await imdb.search(searchTerm);
+      res.json(results.map((result) => ({
         id: result.id,
-        title: result.l,
-        image: result.i[0]
+        title: result.title
       })));
     }
   })
