@@ -8,9 +8,9 @@ block content
     = profile.id
   div(class="form-group")
     label(for="profile-name") Your name ;)
-    div(class="input-group")
-      input(type="text" class="form-control col-md-3 col-sm-5" id="profile-name")
-      img(src="/images/check.png")
+    div(class="input-group" id="profile")
+      input(type="text" class="form-control col-md-3 col-sm-5" v-model="profileName" v-on:change="change" v-on:input="input")
+      img(v-bind:src="statusImage")
   div(class="row mb-1")
     div(class="col-auto")
       button(type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#createroom") Create Room
@@ -58,3 +58,4 @@ block content
         div(class="modal-footer")
           button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
           button(type="button" class="btn btn-primary") Join
+  script(src="/javascripts/index.js")

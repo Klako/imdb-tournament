@@ -1,32 +1,40 @@
-$(function () {
-  var profileName = $("#profile-name");
-  var profileNameStatus = $("#profile-name + img");
-  $.ajax({
-    method: "GET",
-    url: "/api/profile"
-  }).done((profile) => {
-    profileName
-      .val(profile.name)
-      .on("input", (event) => {
-        profileNameStatus.attr("src", "/images/asterisk.png");
-      })
-      .on("change", (event) => {
+(function () {
+  var profile = new Vue({
+    el: '#profile',
+    data: {
+      profileName: '',
+      statusImage: '/images/check.png'
+    },
+    methods: {
+      input: function () {
+        this.statusImage = '/images/asterisk.png';
+      },
+      change: function (event) {
         $.ajax({
           method: "PATCH",
           url: "/api/profile",
-          data: { name: profileName.val() }
-        }).done((data) => {
-          if (data.name) {
-            profileNameStatus.attr("src", "/images/check.png");
-          } else {
-            profileNameStatus.attr("src", "/images/cross.png");
+          data: {
+            name: this.profileName
           }
-        }).fail((data) => {
-          profileNameStatus.attr("src", "/images/cross.png");
-        })
-      });
+        }).done((result) => {
+          if (result.name) {
+            this.statusImage = '/images/check.png';
+          } else {
+            this.statusImage = '/images/cross.png';
+          }
+        }).fail(() => {
+          this.statusImage = '/images/cross.png';
+        });
+      }
+    }
   });
-});
+  $.ajax({
+    method: "GET",
+    url: "/api/profile"
+  }).done((data) => {
+    profile.profileName = data.name;
+  })
+})();
 
 $(function () {
   var min = $("#create-room-minmovies");

@@ -13,7 +13,6 @@ const loadMovies = async function () {
     method: "GET",
     url: "/api/rooms/" + roomId + "/users"
   });
-
   var currentUsers = moviegrid.children().toArray().map(elem => ({
     id: $(elem).data("id"),
     elem: $(elem)
@@ -21,7 +20,6 @@ const loadMovies = async function () {
   var actualUsers = users.map(user => user.id);
   var userRemovals = currentUsers.filter(user => !actualUsers.includes(user.id));
   var userAdditions = users.filter(user => !currentUsers.some(currentUser => currentUser.id == user.id));
-
   userRemovals.forEach(removal => removal.elem.remove());
   for (var user of userAdditions) {
     var elem = $('<div class="col border" />')

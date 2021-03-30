@@ -52,10 +52,10 @@ app.use(async (req, res, next) => {
 
 app.use('/', mainRouter);
 app.use('/api', apiRouter);
-app.use('/bootstrap', express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
-app.use('/jquery', express.static(path.join(__dirname, 'node_modules/jquery/dist')));
-app.use('/popper', express.static(path.join(__dirname, 'node_modules/popper.js/dist/umd')));
-app.use('/vimdb', express.static(path.join(__dirname, 'node_modules/vimdb/dist')));
+app.use('/includes/bootstrap', express.static(path.join(__dirname, 'node_modules/bootstrap/dist')));
+app.use('/includes/jquery', express.static(path.join(__dirname, 'node_modules/jquery/dist')));
+app.use('/includes/popper', express.static(path.join(__dirname, 'node_modules/popper.js/dist/umd')));
+app.use('/includes/vue', express.static(path.join(__dirname, 'node_modules/vue/dist')));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
