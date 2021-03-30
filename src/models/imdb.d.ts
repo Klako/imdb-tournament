@@ -1,5 +1,3 @@
-import { Reference } from 'vimdb';
-
 export interface Movie {
   id: string,
   title: string,
