@@ -54,20 +54,20 @@ $(async () => {
 });
 
 $(function () {
-  var addMovieId = $("#addmovie-id");
-  var suggestions = $("#addmovie-suggestions");
+  var searchBox = $("#searchbox");
+  var suggestions = $("#moviesearch-suggestions");
   var searchDelay;
-  addMovieId.on('input', () => {
+  searchBox.on('input', () => {
     suggestions.children().remove();
     suggestions.append($('<span class="dropdown-item">...</span>'));
-    addMovieId.dropdown('show');
+    searchBox.dropdown('show');
     clearTimeout(searchDelay);
     searchDelay = setTimeout(async () => {
       var results = await $.ajax({
         method: "GET",
         url: "/api/imdb",
         data: {
-          term: addMovieId.val()
+          term: searchBox.val()
         }
       });
       suggestions.children().remove();
