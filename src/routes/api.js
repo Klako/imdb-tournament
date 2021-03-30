@@ -16,6 +16,8 @@ router.all('/rooms/:id/*', async (req, res, next) => {
   }
 });
 router.all('/rooms/:id', api.room);
+router.all('/rooms/:id/users', api.roomUsers);
+router.all('/rooms/:rid/users/:uid', api.roomUser);
 router.all('/rooms/:id/movies', api.movies);
 router.all('/rooms/:rid/movies/:mid', api.movie);
 router.all('/rooms/:rid/bracket', api.bracket);

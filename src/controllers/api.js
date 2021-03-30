@@ -134,7 +134,13 @@ exports.roomUsers = (req, res) => {
     GET: async (req, res) => {
       var roomId = req.params.id;
       var room = await rooms.getRoom(roomId);
-      res.json()
+      var userProfiles = await Promise.all(
+        room.users.map(async (user) => await profiles.get(user))
+      );
+      res.json(userProfiles.map((profile) => ({
+        id: profile.id,
+        name: profile.name
+      })));
     }
   })
 }
