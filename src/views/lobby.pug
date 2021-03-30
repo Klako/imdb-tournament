@@ -8,10 +8,6 @@ block extrahead
 block content 
   p Room ID:
     = room.id
-  div(class="row")
-    each user in room.users
-      div(class="col-auto")
-        span(class="badge badge-primary")= user
   if profile.id == room.owner
     button(type="button" class="btn btn-primary mb-3" id="starttournament") Start Tournament
   div(class="row mb-3")
@@ -19,4 +15,4 @@ block content
       input(type="text" id="searchbox" class="form-control" data-toggle="dropdown" placeholder="Search...")
       div(class="dropdown-menu" aria-labelledby="searchbox" id="moviesearch-suggestions")
   h3 Movies
-  ul(class="list-group col-3" id="movielist")
+  div(class="row row-cols-3" id="moviegrid")

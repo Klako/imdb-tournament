@@ -7,31 +7,55 @@ const removeMovie = function () {
   })
 }
 
-const loadMovies = function () {
-  var movielist = $("#movielist");
-  $.ajax({
+const loadMovies = async function () {
+  var moviegrid = $("#moviegrid");
+  var users = await $.ajax({
+    method: "GET",
+    url: "/api/rooms/" + roomId + "/users"
+  });
+
+  var currentUsers = moviegrid.children().toArray().map(elem => ({
+    id: $(elem).data("id"),
+    elem: $(elem)
+  }));
+  var actualUsers = users.map(user => user.id);
+  var userRemovals = currentUsers.filter(user => !actualUsers.includes(user.id));
+  var userAdditions = users.filter(user => !currentUsers.some(currentUser => currentUser.id == user.id));
+
+  userRemovals.forEach(removal => removal.elem.remove());
+  for (var user of userAdditions) {
+    var elem = $('<div class="col border" />')
+      .data('id', user.id)
+      .append(`<h3>${user.name}</h3>`)
+      .append('<ul class="list-group" />');
+    moviegrid.append(elem);
+  }
+
+  /** @type {Array} */
+  var movies = await $.ajax({
     method: "GET",
     url: "/api/rooms/" + roomId + "/movies"
-  }).done((data) => {
-    var currentMovies = movielist.children().toArray().map((elem) => ({
-      id: $(elem).data("id"),
-      elem: $(elem)
-    }));
-    var actualMovies = data.map((movie) => movie.id);
-    var removals = currentMovies.filter((movie) => !actualMovies.includes(movie.id));
-    var additions = data.filter((movie) => !currentMovies.some((currentMovie) => currentMovie.id == movie.id));
-    for (var removal of removals) {
-      removal.elem.remove();
-    }
-    for (var addition of additions) {
-      var item = `<li class="list-group-item" data-id="${addition.id}">
-        <span>${addition.title}</span>
-        <button type="button" class="btn btn-danger float-right" id=${"removemovie-" + addition.id}>Remove</button>
-      </li>`
-      movielist.append(item);
-      $("#removemovie-" + addition.id).on("click", removeMovie.bind({ movieId: addition.id }));
-    }
   });
+
+  for (var elem of moviegrid.children()) {
+    var userbox = $(elem);
+    var movielist = userbox.children('ul');
+    var userMovies = movies.filter(movie => movie.owner == userbox.data('id'));
+    var currentMovies = movielist.children().toArray().map(movieElem => ({
+      id: $(movieElem).data('id'),
+      elem: $(movieElem)
+    }));
+    var actualMovies = userMovies.map(movie => movie.id);
+    currentMovies.filter(movie => !actualMovies.includes(movie.id))
+      .forEach(removal => removal.elem.remove());
+    userMovies.filter(movie => !currentMovies.some(currentMovie => currentMovie.id == movie.id))
+      .forEach(movie => {
+        var elem = $('<li class="list-group-item" />')
+          .text(movie.title)
+          .data('id', movie.id);
+        movielist.append(elem);
+      });
+  }
 }
 
 const checkRoomState = function () {
