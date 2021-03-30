@@ -36,44 +36,42 @@
   })
 })();
 
-$(function () {
-  var min = $("#create-room-minmovies");
-  var max = $("#create-room-maxmovies");
-  min.on("change", (event) => {
-    if (min.val() > max.val()) {
-      min.val(max.val());
-    } else if (min.val() < 0) {
-      min.val(0);
-    }
-    min.val(Math.floor(min.val()));
-  });
-  max.on("change", (event) => {
-    if (max.val() < min.val()) {
-      max.val(min.val());
-    }
-    max.val(Math.floor(max.val()));
-  });
-});
-
-$(function () {
-  $("#createroom-create").on("click", (event) => {
-    $.ajax({
-      method: "POST",
-      url: "/api/rooms",
-      data: {
-        minperuser: parseInt($("#create-room-minmovies").val()),
-        maxperuser: parseInt($("#create-room-maxmovies").val()),
-        candropinvote: $("#create-form-dropinvote").is(':checked')
+(function () {
+  var createModal = new Vue({
+    el: '#createroom',
+    data: {
+      minperuser: 2,
+      maxperuser: 4,
+      candropinsvote: false
+    },
+    methods: {
+      changeMinPerUser: function () {
+        if (this.minperuser > this.maxperuser) {
+          this.minperuser = this.maxperuser;
+        } else if (this.minperuser < 0) {
+          this.minperuser = 0;
+        }
+        this.minperuser = Math.floor(this.minperuser);
+      },
+      changeMaxPerUser: function () {
+        if (this.maxperuser < this.minperuser) {
+          this.maxperuser = this.minperuser;
+        }
+        this.maxperuser = Math.floor(this.maxperuser);
+      },
+      create: function () {
+        $.ajax({
+          method: "POST",
+          url: "/api/rooms",
+          data: {
+            minperuser: this.minperuser,
+            maxperuser: this.maxperuser,
+            candropinvote: this.candropinsvote
+          }
+        }).done((data) => {
+          window.location = data.url
+        });
       }
-    }).done((data) => {
-      window.location = data.url
-    }).fail((jqXhr) => {
-      var data = jqXhr.responseJSON;
-      var errorUl = $("#createform-errors");
-      errorUl.children().remove();
-      for (var error of data.errors) {
-        errorUl.append("<li class='list-group-item'>" + error + "</li>");
-      }
-    });
-  })
-})
+    }
+  });
+})();

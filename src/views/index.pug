@@ -24,19 +24,18 @@ block content
           button(type="button" class="close" data-dismiss="modal" aria-label="Close")
         div(class="modal-body")
           div(class="form-group")
-            label Number of movies per user
+            label Max and min number of movies per user
             div(class="input-group")
-              input(type="number" id="create-room-minmovies" class="form-control" placeholder="Minimum" value="2")
+              input(type="number" v-model.number="minperuser" v-on:change="changeMinPerUser" class="form-control" placeholder="Minimum")
               div(class="input-group-prepend")
                 span(class="input-group-text") -
-              input(type="number" id="create-room-maxmovies" class="form-control" placeholder="Maximum" value="4")
+              input(type="number" v-model.number="maxperuser" v-on:change="changeMaxPerUser" class="form-control" placeholder="Maximum")
           div(class="form-check")
-            input(type="checkbox" class="form-check-input" id="create-form-dropinvote" selected)
+            input(type="checkbox" class="form-check-input" id="create-form-dropinvote" v-model="candropinsvote")
             label(class="form-check-label" for="create-form-dropinvote") Let dropins vote
-          ul(class="list-group list-group-flush" id="createform-errors")
         div(class="modal-footer")
           button(type="button" class="btn btn-secondary" data-dismiss="modal") Close
-          button(type="button" class="btn btn-primary" id="createroom-create") Create
+          button(type="button" class="btn btn-primary" v-on:click="create") Create
   // Join Room Modal
   div(class="modal fade" role="dialog" id="joinroom" tab-index="-1" aria-hidden="true")
     div(class="modal-dialog" role="document")
