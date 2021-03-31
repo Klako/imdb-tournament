@@ -17,7 +17,7 @@ block content
         div(class="dropdown-item" v-else v-for="result in results" v-bind:key="result.id" v-on:click="addMovie(result.id)")
           | {{ result.title }}
   h3 Movies
-  div(class="row row-cols-3" id="moviegrid")
+  div(class="row row-cols-md-3 row-cols-sm-12" id="moviegrid")
     div(class="col" v-for="user of users" v-bind:key="user.id")
       div(class="card mb-3")
         div(class="card-header") {{ user.name }}
