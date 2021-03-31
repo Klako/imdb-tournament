@@ -18,9 +18,13 @@ block content
           | {{ result.title }}
   h3 Movies
   div(class="row row-cols-3" id="moviegrid")
-    div(class="col border" v-for="user of users" v-bind:key="user.id")
-      h3 {{ user.name }}
-      ul(class="list-group")
-        li(class="list-group-item" v-for="movie of user.movies" v-bind:key="movie.id")
-          | {{ movie.title }}
+    div(class="col" v-for="user of users" v-bind:key="user.id")
+      div(class="card mb-3")
+        div(class="card-header") {{ user.name }}
+          span(class="font-weight-bold" v-if="user.isYou")  (You)
+          span(class="font-weight-bold" v-if="user.isRoomOwner")  (Host)
+        ul(class="list-group")
+          li(class="list-group-item" v-for="movie of user.movies" v-bind:key="movie.id")
+            | {{ movie.title }}
+            button(type="button" class="btn btn-danger float-right" v-on:click="removeMovie(movie.id)" v-if="user.isYou") &times;
   script(src="/javascripts/lobby.js") 

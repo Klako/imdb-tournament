@@ -73,7 +73,8 @@ exports.room = (req, res) => {
       var room = await rooms.getRoom(roomId);
       res.json({
         id: room.id,
-        state: room.state
+        state: room.state,
+        owner: room.owner
       });
     },
     PATCH: async (req, res) => {

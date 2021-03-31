@@ -1,8 +1,26 @@
+var profilePromise = $.ajax({
+  method: "GET",
+  url: "/api/profile"
+});
+
+var roomPromise = $.ajax({
+  method: "GET",
+  url: "/api/rooms/" + roomId
+});
+
 (function () {
   var moviegrid = new Vue({
     el: '#moviegrid',
     data: {
       users: []
+    },
+    methods: {
+      removeMovie: function (id) {
+        $.ajax({
+          method: "DELETE",
+          url: "/api/rooms/" + roomId + "/movies/" + id
+        });
+      }
     }
   });
   (async () => {
@@ -17,8 +35,12 @@
           url: "/api/rooms/" + roomId + "/movies"
         })
       ]);
+      var profile = await profilePromise;
+      var room = await roomPromise;
       moviegrid.users = users.map((user) => ({
         id: user.id,
+        isYou: profile.id == user.id,
+        isRoomOwner: user.id == room.owner,
         name: user.name,
         movies: movies.filter((movie) => movie.owner == user.id)
       }));
