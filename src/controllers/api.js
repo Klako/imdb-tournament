@@ -38,7 +38,10 @@ function handler(req, res, handlers) {
 exports.profile = function (req, res) {
   handler(req, res, {
     GET: async (req, res) => {
-      await res.json(req.profile);
+      res.json({
+        id: req.profile.id,
+        name: req.profile.name
+      });
     },
     PATCH: async (req, res) => {
       var result = {};
