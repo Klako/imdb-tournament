@@ -9,10 +9,13 @@ block content
     = room.id
   if profile.id == room.owner
     button(type="button" class="btn btn-primary mb-3" id="starttournament") Start Tournament
-  div(class="row mb-3")
-    div(class=" col-auto dropdown")
-      input(type="text" id="searchbox" class="form-control" data-toggle="dropdown" placeholder="Search...")
-      div(class="dropdown-menu" aria-labelledby="searchbox" id="moviesearch-suggestions")
+  div(class="row mb-3" id="moviesearch")
+    div(class="col-auto dropdown")
+      input(type="text" class="form-control" data-toggle="dropdown" placeholder="Search..." v-on:input="searchInput" v-model="searchQuery")
+      div(class="dropdown-menu")
+        div(class="dropdown-item" v-if="searching") ...
+        div(class="dropdown-item" v-else v-for="result in results" v-bind:key="result.id" v-on:click="addMovie(result.id)")
+          | {{ result.title }}
   h3 Movies
   div(class="row row-cols-3" id="moviegrid")
     div(class="col border" v-for="user of users" v-bind:key="user.id")

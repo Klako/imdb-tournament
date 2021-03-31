@@ -36,62 +36,59 @@ const checkRoomState = function () {
       window.location.reload();
     }
   });
-}
+};
 
-$(async () => {
+(async () => {
   while (true) {
     checkRoomState();
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-});
+})();
 
-$(function () {
-  var searchBox = $("#searchbox");
-  var suggestions = $("#moviesearch-suggestions");
+(function () {
   var searchDelay;
-  searchBox.on('input', () => {
-    suggestions.children().remove();
-    suggestions.append($('<span class="dropdown-item">...</span>'));
-    searchBox.dropdown('show');
-    clearTimeout(searchDelay);
-    searchDelay = setTimeout(async () => {
-      var results = await $.ajax({
-        method: "GET",
-        url: "/api/imdb",
-        data: {
-          term: searchBox.val()
+  var moviesearch = new Vue({
+    el: '#moviesearch',
+    data: {
+      searching: false,
+      searchQuery: '',
+      results: []
+    },
+    methods: {
+      searchInput: function () {
+        this.searching = true;
+        if (searchDelay) {
+          clearTimeout(searchDelay);
         }
-      });
-      suggestions.children().remove();
-      if (results.length > 0) {
-        for (var movie of results) {
-          var suggestion = $('<a href="#"/ class="dropdown-item">')
-            .data('movieId', movie.id)
-            .data('movieTitle', movie.title)
-            .text(movie.title)
-            .on('click', function () {
-              $.ajax({
-                method: "POST",
-                url: "/api/rooms/" + roomId + "/movies",
-                data: {
-                  id: $(this).data('movieId')
-                }
-              }).done(() => {
-                loadMovies();
-              }).fail((error) => {
-                console.log("bad movie >:(");
-              });
-            });
-          suggestions.append(suggestion);
-        }
-      } else {
-        var erroritem = $('<span class="dropdown-item" />')
-          .text('No movies found');
-        suggestions.append(erroritem);
+        searchDelay = setTimeout(this.doSearch, 1000);
+      },
+      doSearch: async function () {
+        var results = await $.ajax({
+          method: "GET",
+          url: "/api/imdb",
+          data: {
+            term: this.searchQuery
+          }
+        });
+        this.results = results;
+        this.searching = false;
+      },
+      addMovie: function (id) {
+        $.ajax({
+          method: "POST",
+          url: "/api/rooms/" + roomId + "/movies",
+          data: {
+            id: id
+          }
+        }).done(() => {
+          console.log("added movie");
+        }).fail((error) => {
+          console.log("bad movie >:(");
+        });
       }
-    }, 1000);
+    }
   })
-});
+})();
 
 $(function () {
   var startButton = $("#starttournament");
