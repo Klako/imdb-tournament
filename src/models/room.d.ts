@@ -62,7 +62,7 @@ export interface IRoom extends Document {
   initTournament(): void;
   bracketise(): void;
   initBracket(): void;
-  setUserVotes(): void;
+  setUserVotes(): Promise<void>;
   allUsersHaveVotes(): boolean;
   endBracket(): void;
   getBracketResults(): {

@@ -211,6 +211,9 @@ exports.bracketPairings = (req, res) => {
 exports.votes = (req, res) => {
   handler(req, res, {
     POST: async (req, res) => {
+      if (!req.body.votes) {
+        throw new errors[400]("Must contain votes array");
+      }
       var room = await rooms.getRoom(req.params.rid);
       room.setUserVotes(req.profile.id, req.body.votes);
       await room.save();
