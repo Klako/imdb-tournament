@@ -3,7 +3,6 @@ extends layout
 block extrahead 
   script
     = "const roomId = '" + room.id + "'"
-  script(src="/javascripts/tournament.js") 
 
 block content 
   p Tournament mode ;)
@@ -20,7 +19,21 @@ block content
         each movie in room.tournament.movies
           li(class="list-group-item")
             span= movie.data.title
-    div(class="col-7")
-      h3 Vote
-        ul(class="list-group" id="votelist")
-        button(type="button" class="btn btn-primary mt-3" id="sendvotes") Send votes
+    div(class="col-7" id="voting")
+      div(v-if="voteNeeded")
+        h3 Vote
+        ul(class="list-group")
+          li(class="list-group-item" v-for="vote of currentVotes")
+            div(class="row")
+              div(class="col-5")
+                div(class="card border" v-on:click="setVote(vote.index, vote.movie1.id)" v-bind:style="{opacity: vote.movie1.selected ? 1: 0.6}")
+                  img(class="card-img-top" v-bind:src="vote.movie1.image")
+                  h5(class="card-title") {{ vote.movie1.title }}
+              div(class="col-2 align-self-center text-center") VS
+              div(class="col-5")
+                div(class="card border" v-on:click="setVote(vote.index, vote.movie2.id)" v-bind:style="{opacity: vote.movie2.selected ? 1: 0.6}")
+                  img(class="card-img-top" v-bind:src="vote.movie2.image")
+                  h5(class="card-title") {{ vote.movie2.title }}
+          button(type="button" class="btn btn-primary mt-3" v-on:click="sendVote") Send votes
+      h3(v-else) Waiting for everyone to vote...
+  script(src="/javascripts/tournament.js") 
