@@ -13,13 +13,13 @@ block content
       div(class="col-auto")
         span(class="badge badge-primary")= user
   div(class="row")
-    div(class="col-md-3 col-sm-12 mb-3")
+    div(class="col-md-4 col-sm-12 mb-3")
       h3 Movies
       ul(class="list-group" id="movielist")
         each movie in room.tournament.movies
           li(class="list-group-item")
             span= movie.data.title
-    div(class="col-md-7 col-sm-12" id="voting")
+    div(class="col-md-8 col-sm-12" id="voting")
       div(v-if="voteNeeded")
         h3 Vote
         ul(class="list-group-flush px-0")
