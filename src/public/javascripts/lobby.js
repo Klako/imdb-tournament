@@ -20,6 +20,12 @@ var roomPromise = $.ajax({
           method: "DELETE",
           url: "/api/rooms/" + roomId + "/movies/" + id
         });
+      },
+      kickUser: function (id) {
+        $.ajax({
+          method: "DELETE",
+          url: "/api/rooms/" + roomId + "/users/" + id
+        });
       }
     }
   });
@@ -41,6 +47,7 @@ var roomPromise = $.ajax({
         id: user.id,
         isYou: profile.id == user.id,
         isRoomOwner: user.id == room.owner,
+        isKickable: profile.id != user.id && profile.id == room.owner,
         name: user.name,
         movies: movies.filter((movie) => movie.owner == user.id)
       }));

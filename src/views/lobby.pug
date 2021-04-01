@@ -23,6 +23,7 @@ block content
         div(class="card-header") {{ user.name }}
           span(class="font-weight-bold" v-if="user.isYou")  (You)
           span(class="font-weight-bold" v-if="user.isRoomOwner")  (Host)
+          button(type="button" class="btn btn-danger float-right" v-if="user.isKickable" v-on:click="kickUser(user.id)") Kick
         ul(class="list-group")
           li(class="list-group-item" v-for="movie of user.movies" v-bind:key="movie.id")
             | {{ movie.title }}
