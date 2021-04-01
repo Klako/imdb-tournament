@@ -8,7 +8,7 @@ router.all('/profile', api.profile);
 router.all('/imdb', api.imdb);
 router.all('/rooms', api.rooms);
 router.post('/rooms/:id/users', api.roomUsers);
-router.all('/rooms/:id/*', async (req, res, next) => {
+router.all('/rooms/:id*', async (req, res, next) => {
   var room = await rooms.getRoom(req.params.id);
   if (!room.hasUser(req.profile.id)) {
     res.status(401).json({ error: "Must be in room to use its api you fucking loser" });

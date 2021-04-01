@@ -64,6 +64,8 @@ const checkRoomState = function () {
     if (data.state != 'lobby') {
       window.location.reload();
     }
+  }).fail(() => {
+    window.location = "/";
   });
 };
 
