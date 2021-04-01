@@ -7,11 +7,15 @@ var movieCache = [];
 
 exports.getMovie = async (id) => {
   if (typeof movieCache[id] !== 'undefined') {
+    if (movieCache[id] === null) {
+      throw new errors[400]("Imdb id must refer to a movie");
+    }
     return movieCache[id];
   }
   var imdb = new Imdb();
   var data = await imdb.getShow(id);
   if (!(data instanceof Movie)) {
+    movieCache[id] = null;
     throw new errors[400]("Imdb id must refer to a movie");
   }
   var movie = {
