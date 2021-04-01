@@ -1,7 +1,6 @@
 const express = require('express');
 const errors = require('http-errors');
-const { uid } = require('uid');
-const imdb = require('@timvdeijnden/imdb-scraper');
+const imdb = require('./imdb');
 const mongodb = require('./mongodb.js');
 const { Schema } = require('mongoose');
 var exports = module.exports;
@@ -30,14 +29,6 @@ exports.roomExists = async (roomId) => {
 exports.getRoom = async (roomId) => {
   const db = await this.connect();
   return await db.findById(roomId);
-}
-
-async function getMovieData(imdbId) {
-  var movie = await imdb.scrapper(imdbId);
-  if (!movie) {
-    throw new errors[400]("Invalid movie");
-  }
-  return movie;
 }
 
 exports.connect = async () => {
@@ -128,7 +119,7 @@ roomSchema.method('addMovie', async function (imdbId, owner) {
   if (this.movies.find((movie) => movie.id == imdbId)) {
     throw new errors[400]("Movie already in room");
   }
-  var movie = await getMovieData(imdbId);
+  var movie = await imdb.getMovie(imdbId);
   var newMovie = {
     id: imdbId,
     owner: owner,
@@ -285,7 +276,7 @@ roomSchema.method('endBracket', function () {
     this.tournament.winner = {
       id: winner.id,
       title: winner.data.title,
-      image: winner.data.poster
+      image: winner.data.image
     };
     this.setState(roomState.WINNER);
   }

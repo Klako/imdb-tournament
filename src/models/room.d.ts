@@ -1,4 +1,5 @@
 import { Document } from 'mongoose';
+import { Movie } from './imdb';
 
 export interface ISettings {
   minperuser: number;
@@ -7,7 +8,7 @@ export interface ISettings {
 }
 
 export interface IRoom extends Document {
-  movies: [{ id: string, owner: string }];
+  movies: [{ id: string, owner: string, data: Movie }];
   addMovie(imdbId: string): Promise<void>;
   removeMovie(imdbId: string): void;
   users: [string];
@@ -25,27 +26,27 @@ export interface IRoom extends Document {
   tournament: {
     movies: [{
       id: string,
-      data: object,
+      data: Movie,
       eliminated: boolean
     }],
     brackets: [[{
       id: string,
-      data: object
+      data: Movie
     }]],
     activeBracket: {
       number: number,
       movies: [{
         id: string,
-        data: object
+        data: Movie
       }],
       pairings: [{
         movie1: {
           id: string,
-          data: object
+          data: Movie
         },
         movie2: {
           id: string,
-          data: object
+          data: Movie
         }
       }],
       userVotes: [{
