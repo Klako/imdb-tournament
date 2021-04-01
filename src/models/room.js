@@ -100,7 +100,7 @@ roomSchema.method('removeUser', function (user) {
   if (!this.users.includes(user)) {
     throw new errors[400]("User is not in room");
   }
-  this.users = this.users.filter(user => user != user);
+  this.users = this.users.filter(u => u != user);
   this.movies = this.movies.filter(movie => movie.owner != user);
 });
 
