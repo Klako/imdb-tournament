@@ -10,10 +10,8 @@ exports.get = function (req, res) {
   }
   rooms.getRoom(roomId).then((room) => {
     if (!room.hasUser(req.profile.id)) {
-      room.addUser(req.profile.id);
-      room.save();
-    }
-    if (room.state == rooms.state.LOBBY) {
+      res.render("joinroom", { room: room });
+    } else if (room.state == rooms.state.LOBBY) {
       res.render("lobby", { room: room, profile: req.profile });
     } else if (room.state == rooms.state.TOURNAMENT) {
       res.render("tournament", { room: room, profile: req.profile });

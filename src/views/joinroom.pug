@@ -1,0 +1,18 @@
+extends layout 
+
+block extrahead 
+  script
+    = "const roomId = '" + room.id + "'"
+
+block content 
+  p Room ID:
+    = room.id
+  h3 You are about to join a room
+  p Please review your profile information below
+  div(class="form-group")
+    label(for="profile-name") Your name ;)
+    div(class="input-group" id="profile")
+      input(type="text" class="form-control col-md-3 col-sm-5" v-model="profileName" v-on:change="change" v-on:input="input")
+      img(v-bind:src="statusImage")
+  button(type="button" class="btn btn-primary" id="joinroom") Join room
+  script(src="/javascripts/joinroom.js") 

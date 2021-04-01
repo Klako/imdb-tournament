@@ -145,6 +145,17 @@ exports.roomUsers = (req, res) => {
         id: profile.id,
         name: profile.name
       })));
+    },
+    POST: async (req,res) => {
+      var roomId = req.params.id;
+      var profile = req.profile;
+      var room = await rooms.getRoom(roomId);
+      if (room.hasUser(profile.id)){
+        throw new errors[403]("You can't join a room you're already in");
+      }
+      room.addUser(profile.id);
+      room.save();
+      res.end();
     }
   })
 }
