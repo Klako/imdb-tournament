@@ -13,27 +13,27 @@ block content
       div(class="col-auto")
         span(class="badge badge-primary")= user
   div(class="row")
-    div(class="col-3")
+    div(class="col-md-3 col-sm-12 mb-3")
       h3 Movies
       ul(class="list-group" id="movielist")
         each movie in room.tournament.movies
           li(class="list-group-item")
             span= movie.data.title
-    div(class="col-7" id="voting")
+    div(class="col-md-7 col-sm-12" id="voting")
       div(v-if="voteNeeded")
         h3 Vote
-        ul(class="list-group")
-          li(class="list-group-item" v-for="vote of currentVotes")
+        ul(class="list-group-flush px-0")
+          li(class="list-group-item px-0" v-for="vote of currentVotes")
             div(class="row")
-              div(class="col-5")
+              div(class="col col-5")
                 div(class="card border" v-on:click="setVote(vote.index, vote.movie1.id)" v-bind:style="{opacity: vote.movie1.selected ? 1: 0.6}")
                   img(class="card-img-top" v-bind:src="vote.movie1.image")
                   h5(class="card-title") {{ vote.movie1.title }}
-              div(class="col-2 align-self-center text-center") VS
-              div(class="col-5")
+              div(class="col col-2 align-self-center text-center") VS
+              div(class="col col-5")
                 div(class="card border" v-on:click="setVote(vote.index, vote.movie2.id)" v-bind:style="{opacity: vote.movie2.selected ? 1: 0.6}")
                   img(class="card-img-top" v-bind:src="vote.movie2.image")
                   h5(class="card-title") {{ vote.movie2.title }}
-          button(type="button" class="btn btn-primary mt-3" v-on:click="sendVote") Send votes
+        button(type="button" class="btn btn-primary mt-3 col" v-on:click="sendVote") Send votes
       h3(v-else) Waiting for everyone to vote...
   script(src="/javascripts/tournament.js") 
