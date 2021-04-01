@@ -69,6 +69,7 @@ const checkRoomState = function () {
 
 (function () {
   var searchDelay;
+  var searchOrdinal = 0;
   var moviesearch = new Vue({
     el: '#moviesearch',
     data: {
@@ -85,6 +86,7 @@ const checkRoomState = function () {
         searchDelay = setTimeout(this.doSearch, 1000);
       },
       doSearch: async function () {
+        var currentOrdinal = ++searchOrdinal;
         var results = await $.ajax({
           method: "GET",
           url: "/api/imdb",
@@ -92,6 +94,9 @@ const checkRoomState = function () {
             term: this.searchQuery
           }
         });
+        if (currentOrdinal != searchOrdinal) {
+          return;
+        }
         this.results = results;
         this.searching = false;
       },
