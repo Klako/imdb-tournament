@@ -14,6 +14,7 @@ block content
       input(type="text" class="form-control" data-toggle="dropdown" placeholder="Search..." v-on:input="searchInput" v-model="searchQuery")
       div(class="dropdown-menu")
         div(class="dropdown-item" v-if="searching") ...
+        div(class="dropdown-item" v-else-if="results.length == 0") No movies found
         button(type="button" class="dropdown-item" v-else v-for="result in results" v-bind:key="result.id" v-on:click="addMovie(result.id)")
           | {{ result.title }}
   h3 Movies
