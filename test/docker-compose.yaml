@@ -8,6 +8,8 @@ services:
       - "8081:9229"
     volumes:
       - "../src/:/usr/src/app/"
+    env_file: 
+      - ./keys.env
     environment: 
       PORT: "8080"
       MONGO_HOST: "mongo"

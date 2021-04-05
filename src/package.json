@@ -9,6 +9,7 @@
     "@timvdeijnden/imdb-scraper": "^2.0.0",
     "@types/mongoose": "^5.10.4",
     "a1-database": "^1.5.0",
+    "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "connect-mongodb-session": "^2.4.1",
     "cookie-parser": "~1.4.4",
@@ -24,7 +25,6 @@
     "popper.js": "^1.16.1",
     "pug": "^3.0.2",
     "uid": "^2.0.0",
-    "vimdb": "^3.5.9",
     "vue": "^2.6.12"
   }
 }
