@@ -1,50 +1,40 @@
-const { default: Imdb, Movie } = require('vimdb');
+const axios = require('axios').default;
 const errors = require('http-errors');
 
 var exports = module.exports;
 
-var movieCache = [];
+async function omdb(params) {
+  const apiKey = process.env.OMDB_API_KEY;
+  if (!apiKey) {
+    throw new Error("OMDB_API_KEY environment variable is not defined");
+  }
+  params.apikey = apiKey;
+  var result = await axios.get('https://www.omdbapi.com/', {
+    params: params
+  });
+  return result.data;
+}
 
 exports.getMovie = async (id) => {
-  if (typeof movieCache[id] !== 'undefined') {
-    if (movieCache[id] === null) {
-      throw new errors[400]("Imdb id must refer to a movie");
-    }
-    return movieCache[id];
+  var result = await omdb({ i: id, type: 'movie' });
+  if (result.Response === 'False'){
+    throw new errors[400]("Could not find movie");
   }
-  var imdb = new Imdb();
-  var data = await imdb.getShow(id);
-  if (!(data instanceof Movie)) {
-    movieCache[id] = null;
-    throw new errors[400]("Imdb id must refer to a movie");
+  return {
+    id: result.imdbId,
+    title: `${result.Title} (${result.Year || 'unknown'})`,
+    image: result.Poster
   }
-  var movie = {
-    id: data.identifier,
-    title: `${data.name} (${data.year || 'unknown'})`,
-    image: data.image
-  }
-  movieCache[id] = movie;
-  return movie;
 }
 
 exports.search = async (query) => {
-  var imdb = new Imdb();
-  var results = await imdb.search(query, 'tt');
-  var movies = [];
-  var batchStart = 0;
-  for (var batchEnd = 0; batchEnd < results.length;) {
-    batchEnd += 10 - movies.length;
-    var batch = results.slice(batchStart, batchEnd);
-    await Promise.all(batch.map(async (item) => {
-      try {
-        var movie = await this.getMovie(item.identifier);
-        movies.push(movie);
-      } catch (ex) { }
-    }));
-    if (movies.length == 10) {
-      break;
-    }
-    batchStart = batchEnd;
+  var results = await omdb({ s: query, type: 'movie' });
+  if (results.Response === 'False') {
+    return [];
   }
-  return movies;
+  return results.Search.map(result => ({
+    id: result.imdbID,
+    title: `${result.Title} (${result.Year || 'unknown'})`,
+    image: result.Poster
+  }));
 }

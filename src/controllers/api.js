@@ -105,7 +105,7 @@ exports.movies = (req, res) => {
         id: movie.id,
         owner: movie.owner,
         title: movie.data.title,
-        image: movie.data.image.big
+        image: movie.data.image
       })));
       await res.json(result);
       res.end();
@@ -204,18 +204,18 @@ exports.bracketPairings = (req, res) => {
         movies: bracket.movies.map((movie) => ({
           id: movie.id,
           title: movie.data.title,
-          image: movie.data.image.big
+          image: movie.data.image
         })),
         pairings: bracket.pairings.map((pairing) => ({
           movie1: {
             id: pairing.movie1.id,
             title: pairing.movie1.data.title,
-            image: pairing.movie1.data.image.big
+            image: pairing.movie1.data.image
           },
           movie2: {
             id: pairing.movie2.id,
             title: pairing.movie2.data.title,
-            image: pairing.movie2.data.image.big
+            image: pairing.movie2.data.image
           }
         }))
       });
